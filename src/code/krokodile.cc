@@ -15,11 +15,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+#include <cassert>
+
 #include <gf/Action.h>
 #include <gf/Clock.h>
 #include <gf/Color.h>
 #include <gf/EntityContainer.h>
 #include <gf/Event.h>
+#include <gf/Shapes.h>
 #include <gf/RenderWindow.h>
 #include <gf/ViewContainer.h>
 #include <gf/Views.h>
@@ -28,6 +31,26 @@
 #include "config.h"
 #include "local/KreatureContainer.h"
 #include "local/Singletons.h"
+
+static gf::Color4f getColor(int ith) {
+  switch (ith) {
+    case 0:
+      return gf::Color::darker(gf::Color::Azure, 0.25);
+    case 1:
+      return gf::Color::darker(gf::Color::Green, 0.25);
+    case 2:
+      return gf::Color::darker(gf::Color::Yellow, 0.25);
+    case 3:
+      return gf::Color::darker(gf::Color::Red, 0.25);
+    case 4:
+      return gf::Color::darker(gf::Color::Magenta, 0.25);
+    default:
+      break;
+  }
+
+  assert(false);
+  return gf::Color::Black;
+}
 
 int main() {
   static constexpr gf::Vector2u ScreenSize(1024, 576);
