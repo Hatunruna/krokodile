@@ -41,14 +41,18 @@ namespace kkd {
       int ageLevel = MaxAge;
 
       int headSprite;
+      int headColor;
       int bodySprite;
+      int bodyColor;
       int limbsSprite;
+      int limbsColor;
       int tailSprite;
+      int tailColor;
 
       float foodLevel = 0.0f;
 
       gf::Vector2f position;
-      float angle;
+      float orientation;
     };
 
   private:

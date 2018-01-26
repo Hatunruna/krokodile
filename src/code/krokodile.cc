@@ -32,26 +32,6 @@
 #include "local/KreatureContainer.h"
 #include "local/Singletons.h"
 
-static gf::Color4f getColor(int ith) {
-  switch (ith) {
-    case 0:
-      return gf::Color::darker(gf::Color::Azure, 0.25);
-    case 1:
-      return gf::Color::darker(gf::Color::Green, 0.25);
-    case 2:
-      return gf::Color::darker(gf::Color::Yellow, 0.25);
-    case 3:
-      return gf::Color::darker(gf::Color::Red, 0.25);
-    case 4:
-      return gf::Color::darker(gf::Color::Magenta, 0.25);
-    default:
-      break;
-  }
-
-  assert(false);
-  return gf::Color::Black;
-}
-
 int main() {
   static constexpr gf::Vector2u ScreenSize(1024, 576);
   static constexpr gf::Vector2f ViewSize(100.0f, 100.0f); // dummy values

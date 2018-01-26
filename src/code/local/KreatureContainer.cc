@@ -18,34 +18,66 @@
 
 #include "KreatureContainer.h"
 
+#include <gf/Color.h>
+#include <gf/Math.h>
 #include <gf/Shapes.h>
 
 #include "Singletons.h"
 
-kkd::KreatureContainer::KreatureContainer() {
+namespace kkd {
+
+  namespace {
+    gf::Color4f getKreaturColor(int ith) {
+      switch (ith) {
+        case 0:
+          return gf::Color::darker(gf::Color::Azure, 0.25);
+        case 1:
+          return gf::Color::darker(gf::Color::Green, 0.25);
+        case 2:
+          return gf::Color::darker(gf::Color::Yellow, 0.25);
+        case 3:
+          return gf::Color::darker(gf::Color::Red, 0.25);
+        case 4:
+          return gf::Color::darker(gf::Color::Magenta, 0.25);
+        default:
+          break;
+      }
+
+      assert(false);
+      return gf::Color::Black;
+    }
+
+  }
+
+KreatureContainer::KreatureContainer() {
   for (int i = 0; i < SpawnLimit; ++i) {
     float x = gRandom().computeUniformFloat(-50.0f, 50.0f);
     float y = gRandom().computeUniformFloat(-50.0f, 50.0f);
 
     Kreature kreature;
     kreature.position = { x, y };
+    kreature.bodyColor = gRandom().computeUniformInteger(0, 4);
+    kreature.orientation = gRandom().computeUniformFloat(0.0f, 2 * gf::Pi);
 
     m_kreatures.push_back(kreature);
   }
 }
 
-void kkd::KreatureContainer::update(gf::Time time) {
+void KreatureContainer::update(gf::Time time) {
   for (auto &kreature: m_kreatures) {
     // do something
   }
 }
 
-void kkd::KreatureContainer::render(gf::RenderTarget &target, const gf::RenderStates &states) {
+void KreatureContainer::render(gf::RenderTarget &target, const gf::RenderStates &states) {
   for (auto &kreature: m_kreatures) {
-    gf::RectangleShape rect({ 10.0f, 10.0f });
-    rect.setColor(gf::Color::Green);
+    gf::RectangleShape rect({ 10.0f, 5.0f });
+    rect.setColor(getKreaturColor(kreature.bodyColor));
     rect.setPosition(kreature.position);
+    rect.setRotation(kreature.orientation);
     rect.setAnchor(gf::Anchor::Center);
     rect.draw(target, states);
   }
+}
+
 }
