@@ -25,10 +25,21 @@
 #include <gf/Views.h>
 #include <gf/Window.h>
 
+#include "config.h"
+#include "local/KreatureContainer.h"
+#include "local/Singletons.h"
+
 int main() {
   static constexpr gf::Vector2u ScreenSize(1024, 576);
   static constexpr gf::Vector2f ViewSize(100.0f, 100.0f); // dummy values
   static constexpr gf::Vector2f ViewCenter(0.0f, 0.0f); // dummy values
+
+  // Set the singletons
+  gf::SingletonStorage<gf::ResourceManager> storageForResourceManager(kkd::gResourceManager);
+  kkd::gResourceManager().addSearchDir(KROKODILE_DATA_DIR);
+
+  gf::SingletonStorage<gf::MessageManager> storageForMessageManager(kkd::gMessageManager);
+  gf::SingletonStorage<gf::Random> storageForRandom(kkd::gRandom);
 
   // initialization
   gf::Window window("Krokodile", ScreenSize);
@@ -83,13 +94,14 @@ int main() {
 
   // entities
   gf::EntityContainer mainEntities;
-  // add entities to mainEntities
+  kkd::KreatureContainer kreatures;
+  mainEntities.addEntity(kreatures);
 
   gf::EntityContainer hudEntities;
   // add entities to hudEntities
 
   // game loop
-  renderer.clear(gf::Color::White);
+  renderer.clear(gf::Color::lighter(gf::Color::Chartreuse));
   gf::Clock clock;
   while (window.isOpen()) {
     // 1. input

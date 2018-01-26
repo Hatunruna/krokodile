@@ -15,9 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef CONFIG_H
-#define CONFIG_H
 
-#define KROKODILE_DATA_DIR "@KROKODILE_DATA_DIR@"
+#include "Singletons.h"
 
-#endif // CONFIG_H
+gf::Singleton<gf::ResourceManager> kkd::gResourceManager;
+gf::Singleton<gf::MessageManager> kkd::gMessageManager;
+gf::Singleton<gf::Random> kkd::gRandom;

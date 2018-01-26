@@ -18,6 +18,8 @@ endif()
 
 add_executable(krokodile
   code/krokodile.cc
+  code/local/KreatureContainer.cc
+  code/local/Singletons.cc
 )
 
 target_include_directories(krokodile
