@@ -5,6 +5,7 @@
 #include <gf/Font.h>
 #include <gf/RenderTarget.h>
 #include <gf/Shapes.h>
+#include <gf/Clock.h>
 
 namespace kkd {
   class Hud: public gf::Entity {
@@ -19,6 +20,7 @@ namespace kkd {
   private:
     gf::Font &m_font;
     int m_genNumber;
+    gf::Clock m_time;
     float m_foodLevel;
     float m_screenWidth;
 

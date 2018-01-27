@@ -41,9 +41,16 @@ namespace kkd {
     genText.setPosition({0.0f, 0.0f});
     genText.setAnchor(gf::Anchor::TopLeft);
 
+    // Timer
+    gf::Text timer("Time : " + std::to_string((int) m_time.getElapsedTime().asSeconds()), m_font, 75);
+    timer.setColor(gf::Color::White);
+    timer.setPosition({0.0f, 80.0f});
+    timer.setAnchor(gf::Anchor::TopLeft);
+
     target.draw(foodMaxHud);
     target.draw(foodHud);
     target.draw(genText);
+    target.draw(timer);
   }
 
   void Hud::setGenLevel(int gen) {

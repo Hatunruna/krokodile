@@ -29,17 +29,17 @@
 namespace kkd {
 
   namespace {
-    gf::Color4f getKreaturColor(int ith) {
+    gf::Color4f getKreatureColor(KreatureContainer::ColorName ith) {
       switch (ith) {
-        case 0:
+        case KreatureContainer::Azure:
           return gf::Color::darker(gf::Color::Azure, 0.25);
-        case 1:
+        case KreatureContainer::Green:
           return gf::Color::darker(gf::Color::Green, 0.25);
-        case 2:
+        case KreatureContainer::Yellow:
           return gf::Color::darker(gf::Color::Yellow, 0.25);
-        case 3:
+        case KreatureContainer::Red:
           return gf::Color::darker(gf::Color::Red, 0.25);
-        case 4:
+        case KreatureContainer::Magenta:
           return gf::Color::darker(gf::Color::Magenta, 0.25);
         default:
           break;
@@ -47,6 +47,10 @@ namespace kkd {
 
       assert(false);
       return gf::Color::Black;
+    }
+
+    KreatureContainer::ColorName randomColor() {
+      return static_cast<KreatureContainer::ColorName>(gRandom().computeUniformInteger(0, 4));
     }
 
   }
@@ -63,10 +67,10 @@ namespace kkd {
       float rotation = gRandom().computeUniformFloat(0.0f, 2 * gf::Pi);
 
       auto kreature = std::make_unique<Kreature>(gf::Vector2f(x, y), rotation, gf::Vector2f(xTarget, yTarget));
-      kreature->bodyColor = gRandom().computeUniformInteger(0, 4);
-      kreature->headColor = gRandom().computeUniformInteger(0, 4);
-      kreature->limbsColor = gRandom().computeUniformInteger(0, 4);
-      kreature->tailColor = gRandom().computeUniformInteger(0, 4);
+      kreature->bodyColor = randomColor();
+      kreature->headColor = randomColor();
+      kreature->limbsColor = randomColor();
+      kreature->tailColor = randomColor();
 
       m_kreatures.push_back(std::move(kreature));
     }
@@ -91,16 +95,48 @@ namespace kkd {
   void KreatureContainer::swapKreature() {
     assert(m_kreatures.size() >= 2);
 
-    auto newKreature = std::min_element(m_kreatures.begin() + 1, m_kreatures.end(), [this](auto &krea1, auto &krea2){
-      float length1 = gf::euclideanDistance(m_kreatures[0]->position, krea1->position);
-      float length2 = gf::euclideanDistance(m_kreatures[0]->position, krea2->position);
-      return length1 < length2;
-    });
+    auto newKreature = getCloserKreature();
 
     // Reset the activity for the old kreature
     resetActivities(*(m_kreatures.begin()));
 
     std::iter_swap(m_kreatures.begin(), newKreature);
+  }
+
+  void KreatureContainer::fusionDNA() {
+    assert(m_kreatures.size() >= 2);
+
+    auto closerKreature = getCloserKreature();
+    auto &currentKreature = m_kreatures[0];
+
+    // If the kreatures is too for
+    if (gf::euclideanDistance((*closerKreature)->position, currentKreature->position) > LimitLengthFusion || currentKreature->ageLevel <= 0) {
+      return;
+    }
+
+    // Create the child
+    auto newPosition = currentKreature->position + gf::Vector2f(100.0f, 100.0f);
+    float xTarget = gRandom().computeUniformFloat(MinBound, MaxBound);
+    float yTarget = gRandom().computeUniformFloat(MinBound, MaxBound);
+
+    float rotation = gRandom().computeUniformFloat(0.0f, 2 * gf::Pi);
+    auto child = std::make_unique<Kreature>(newPosition, rotation, gf::Vector2f(xTarget, yTarget));
+
+    // Body fusion
+    child->bodyColor = fusionBodyPart(currentKreature->bodyColor, (*closerKreature)->bodyColor);
+
+    // Body head
+    child->headColor = fusionBodyPart(currentKreature->headColor, (*closerKreature)->headColor);
+
+    // Body tail
+    child->tailColor = fusionBodyPart(currentKreature->tailColor, (*closerKreature)->tailColor);
+
+    // Body limbs
+    child->limbsColor = fusionBodyPart(currentKreature->limbsColor, (*closerKreature)->limbsColor);
+
+    --currentKreature->ageLevel;
+
+    m_kreatures.push_back(std::move(child));
   }
 
   void KreatureContainer::resetActivities(std::unique_ptr<Kreature> &kreature) {
@@ -160,7 +196,7 @@ namespace kkd {
       auto &kreature = m_kreatures[i];
 
       gf::RectangleShape body({ 100.0f, 50.0f });
-      body.setColor(getKreaturColor(kreature->bodyColor));
+      body.setColor(getKreatureColor(kreature->bodyColor));
       body.setPosition(kreature->position);
       body.setRotation(kreature->orientation);
 
@@ -170,37 +206,37 @@ namespace kkd {
 
       gf::RectangleShape head({ 25.0f, 25.0f });
       head.setAnchor(gf::Anchor::CenterLeft);
-      head.setColor(getKreaturColor(kreature->headColor));
+      head.setColor(getKreatureColor(kreature->headColor));
       head.setPosition(gf::transform(bodyMatrix, {50.0f, 0.0f}));
       head.setRotation(kreature->orientation);
 
       gf::RectangleShape armLeft({50.0f, 25.0f});
       armLeft.setAnchor(gf::Anchor::BottomCenter);
-      armLeft.setColor(getKreaturColor(kreature->limbsColor));
+      armLeft.setColor(getKreatureColor(kreature->limbsColor));
       armLeft.setPosition(gf::transform(bodyMatrix, {35.0f, -25.0f}));
       armLeft.setRotation(kreature->orientation);
 
       gf::RectangleShape armRight({50.0f, 25.0f});
       armRight.setAnchor(gf::Anchor::TopCenter);
-      armRight.setColor(getKreaturColor(kreature->limbsColor));
+      armRight.setColor(getKreatureColor(kreature->limbsColor));
       armRight.setPosition(gf::transform(bodyMatrix, {35.0f, 25.0f}));
       armRight.setRotation(kreature->orientation);
 
       gf::RectangleShape legLeft({50.0f, 25.0f});
       legLeft.setAnchor(gf::Anchor::BottomCenter);
-      legLeft.setColor(getKreaturColor(kreature->limbsColor));
+      legLeft.setColor(getKreatureColor(kreature->limbsColor));
       legLeft.setPosition(gf::transform(bodyMatrix, {-35.0f, -25.0f}));
       legLeft.setRotation(kreature->orientation);
 
       gf::RectangleShape legRight({50.0f, 25.0f});
       legRight.setAnchor(gf::Anchor::TopCenter);
-      legRight.setColor(getKreaturColor(kreature->limbsColor));
+      legRight.setColor(getKreatureColor(kreature->limbsColor));
       legRight.setPosition(gf::transform(bodyMatrix, {-35.0f, 25.0f}));
       legRight.setRotation(kreature->orientation);
 
       gf::RectangleShape tail({75.0f, 25.0f});
       tail.setAnchor(gf::Anchor::CenterRight);
-      tail.setColor(getKreaturColor(kreature->tailColor));
+      tail.setColor(getKreatureColor(kreature->tailColor));
       tail.setPosition(gf::transform(bodyMatrix, {-50.0f, 0.0f}));
       tail.setRotation(kreature->orientation);
 
@@ -212,6 +248,91 @@ namespace kkd {
       head.draw(target, states);
       body.draw(target, states);
     }
+  }
+
+  std::vector< std::unique_ptr<KreatureContainer::Kreature> >::iterator KreatureContainer::getCloserKreature() {
+    auto newKreature = std::min_element(m_kreatures.begin() + 1, m_kreatures.end(), [this](auto &krea1, auto &krea2){
+      float length1 = gf::euclideanDistance(m_kreatures[0]->position, krea1->position);
+      float length2 = gf::euclideanDistance(m_kreatures[0]->position, krea2->position);
+      return length1 < length2;
+    });
+
+    return newKreature;
+  }
+
+  int KreatureContainer::colorCompare(ColorName color1, ColorName color2) {
+    switch (color1) {
+      case Azure:
+        if (color2 == Yellow || color2 == Magenta) {
+          return 1;
+        }
+        if (color2 == Green || color2 == Red) {
+          return -1;
+        }
+        return 0;
+
+      case KreatureContainer::Green:
+        if (color2 == Azure || color2 == Yellow) {
+          return 1;
+        }
+        if (color2 == Magenta || color2 == Red) {
+          return -1;
+        }
+        return 0;
+
+      case KreatureContainer::Yellow:
+        if (color2 == Red || color2 == Magenta) {
+          return 1;
+        }
+        if (color2 == Azure || color2 == Green) {
+          return -1;
+        }
+        return 0;
+
+      case KreatureContainer::Red:
+        if (color2 == Azure || color2 == Green) {
+          return 1;
+        }
+        if (color2 == Yellow || color2 == Magenta) {
+          return -1;
+        }
+        return 0;
+
+      case KreatureContainer::Magenta:
+        if (color2 == Red || color2 == Green) {
+          return 1;
+        }
+        if (color2 == Yellow || color2 == Azure) {
+          return -1;
+        }
+        return 0;
+
+      default:
+        assert(false);
+        break;
+    }
+
+    return 0;
+  }
+
+  KreatureContainer::ColorName KreatureContainer::fusionBodyPart(KreatureContainer::ColorName currentColor, KreatureContainer::ColorName otherColor) {
+    float fusionFactor = 0.0f;
+    if (colorCompare(currentColor, otherColor) == 1) {
+      fusionFactor = UpperFusionFactor;
+    }
+    else {
+      fusionFactor = LowerFusionFactor;
+    }
+
+    float rand = gRandom().computeUniformFloat(0.0f, 1.0f);
+    if (rand < fusionFactor) {
+      return otherColor;
+    }
+    if (rand >= FumbleMutation) {
+      return randomColor();
+    }
+
+    return currentColor;
   }
 
 }
