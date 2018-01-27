@@ -35,6 +35,9 @@ namespace kkd {
     void playerForwardMove(int direction);
     void playerSidedMove(int direction);
 
+    float getPlayerFoodLevel();
+    int getPlayerGen();
+
     virtual void update(gf::Time time) override;
     virtual void render(gf::RenderTarget &target, const gf::RenderStates &states) override;
 
@@ -48,6 +51,7 @@ namespace kkd {
 
     static constexpr float MaxBound = 1500.0f;
     static constexpr float MinBound = - MaxBound;
+    static const constexpr float FoodLevelMax = 100.0f;
 
   private:
     struct Kreature {

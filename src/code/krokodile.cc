@@ -17,6 +17,7 @@
  */
 #include <cassert>
 
+#include <gf/Anchor.h>
 #include <gf/Action.h>
 #include <gf/Clock.h>
 #include <gf/Color.h>
@@ -29,6 +30,7 @@
 #include <gf/Window.h>
 
 #include "config.h"
+#include "local/Hud.h"
 #include "local/KreatureContainer.h"
 #include "local/Map.h"
 #include "local/Messages.h"
@@ -115,6 +117,8 @@ int main() {
 
   gf::EntityContainer hudEntities;
   // add entities to hudEntities
+  kkd::Hud hud((float)ScreenSize.width);
+  hudEntities.addEntity(hud);
 
   // game loop
   renderer.clear(gf::Color::lighter(gf::Color::Chartreuse));
@@ -150,6 +154,8 @@ int main() {
     gf::Time time = clock.restart();
     mainEntities.update(time);
     hudEntities.update(time);
+    hud.setGenLevel(kreatures.getPlayerGen());
+    hud.setFoodLevel(kreatures.getPlayerFoodLevel());
 
     // 3. draw
     renderer.clear();

@@ -76,6 +76,13 @@ namespace kkd {
     m_kreatures[0]->sideMove = direction;
   }
 
+  float KreatureContainer::getPlayerFoodLevel() {
+    return m_kreatures[0]->foodLevel;
+  }
+  int KreatureContainer::getPlayerGen() {
+    return m_kreatures[0]->ageLevel;
+  }
+
   void KreatureContainer::update(gf::Time time) {
     assert(!m_kreatures.empty());
 
@@ -117,6 +124,11 @@ namespace kkd {
     message.position = m_kreatures[0]->position;
     message.angle = m_kreatures[0]->orientation;
     gMessageManager().sendMessage(&message);
+
+    m_kreatures[0]->foodLevel += 0.5f;
+    if (m_kreatures[0]->foodLevel > FoodLevelMax) {
+      m_kreatures[0]->foodLevel = 0.0f;
+    }
   }
 
   void KreatureContainer::render(gf::RenderTarget &target, const gf::RenderStates &states) {
