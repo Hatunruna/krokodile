@@ -68,6 +68,8 @@ namespace kkd {
       float orientation;
       float forwardMove = 0; // 1 to forward / -1 to backward
       float sideMove = 0; // 1 to rigth / -1 to left
+      gf::Time timeElapsed;
+      bool toggleAnimation = true;
 
       gf::RotateToActivity rotationActivity;
       gf::MoveToActivity moveActivity;
@@ -108,6 +110,7 @@ namespace kkd {
     static constexpr float LowerFusionFactor = 0.25f;
     static constexpr float FumbleMutation = 0.90f;
     static constexpr float LimitLengthFusion = 150.0f;
+    static constexpr gf::Time AnimationDuration = gf::seconds(0.25f);
 
   private:
     std::unique_ptr<Kreature>& getPlayerPtr();

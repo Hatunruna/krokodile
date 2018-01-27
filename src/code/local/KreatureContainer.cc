@@ -91,6 +91,7 @@ namespace kkd {
       kreature->limbs.offset = randomOffset();
       kreature->tail.color = randomColor();
       kreature->tail.offset = randomOffset();
+      kreature->timeElapsed = gf::seconds(0.0f + gRandom().computeUniformFloat(0.01f, AnimationDuration.asSeconds() - 0.01f));
 
       m_kreatures.push_back(std::move(kreature));
     }
@@ -148,6 +149,8 @@ namespace kkd {
     // Body limbs
     child->limbs = fusionPart(currentKreature->limbs, closerKreature->limbs);
 
+    child->timeElapsed = gf::seconds(0.0f + gRandom().computeUniformFloat(0.01f, AnimationDuration.asSeconds() - 0.01f));
+
 
     addFoodLevel(-FusionFoodConsumption);
 
@@ -202,6 +205,16 @@ namespace kkd {
     // Update the player
     Kreature& player = getPlayer();
 
+    // If we move
+    if (player.sideMove != 0 || player.forwardMove != 0) {
+      player.timeElapsed += time;
+    }
+
+    if (player.timeElapsed >= AnimationDuration) {
+      player.timeElapsed -= AnimationDuration;
+      player.toggleAnimation = !player.toggleAnimation;
+    }
+
     // Update the orientation
     player.orientation += SideVelocity * player.sideMove * time.asSeconds();
     player.orientation = std::remainder(player.orientation, 2 * gf::Pi);
@@ -219,6 +232,12 @@ namespace kkd {
 
       if (status == gf::ActivityStatus::Finished) {
         resetActivities(*m_kreatures[i]);
+      }
+
+      m_kreatures[i]->timeElapsed += time;
+      if (m_kreatures[i]->timeElapsed >= AnimationDuration) {
+        m_kreatures[i]->timeElapsed -= AnimationDuration;
+        m_kreatures[i]->toggleAnimation = !m_kreatures[i]->toggleAnimation;
       }
     }
 
@@ -255,6 +274,15 @@ namespace kkd {
 
       body.setAnchor(gf::Anchor::Center);
 
+      float animationRotationOffset = 0.0f;
+
+      if (kreature->toggleAnimation) {
+        animationRotationOffset = gf::Pi / 8.0f * -1.0f;
+      }
+      else {
+        animationRotationOffset = gf::Pi / 8.0f * +1.0f;
+      }
+
       static constexpr gf::Vector2f HeadSpriteSize = { 256.0f, 256.0f };
       static constexpr gf::Vector2f HeadWorldSize = { 128.0f, 128.0f };
       // Not work !
@@ -276,7 +304,7 @@ namespace kkd {
       anteLeg.setAnchor(gf::Anchor::BottomCenter);
       anteLeg.setColor(getKreatureColor(kreature->limbs.color));
       anteLeg.setPosition(gf::transform(bodyMatrix, { 0.60f * m_cropBoxs[kreature->body.offset].width + BoxCropsVoid.width, -0.4f * m_cropBoxs[kreature->body.offset].height - BoxCropsVoid.height }));
-      anteLeg.setRotation(kreature->orientation);
+      anteLeg.setRotation(kreature->orientation + animationRotationOffset);
       anteLeg.draw(target, states);
       anteLeg.scale({ 1.0f, -1.0f });
       anteLeg.setPosition(gf::transform(bodyMatrix, { 0.60f * m_cropBoxs[kreature->body.offset].width + BoxCropsVoid.width, 0.4f * m_cropBoxs[kreature->body.offset].height + BoxCropsVoid.height }));
@@ -290,7 +318,7 @@ namespace kkd {
       postLeg.setAnchor(gf::Anchor::BottomCenter);
       postLeg.setColor(getKreatureColor(kreature->limbs.color));
       postLeg.setPosition(gf::transform(bodyMatrix, { -0.40f * m_cropBoxs[kreature->body.offset].width - BoxCropsVoid.width, -0.45f * m_cropBoxs[kreature->body.offset].height - BoxCropsVoid.height}));
-      postLeg.setRotation(kreature->orientation);
+      postLeg.setRotation(kreature->orientation + animationRotationOffset);
       postLeg.draw(target, states);
       postLeg.setScale({ PostLegWorldSize.x / PostLegSpriteSize.x, -PostLegWorldSize.y / PostLegSpriteSize.y });
       postLeg.setPosition(gf::transform(bodyMatrix, { -0.40f * m_cropBoxs[kreature->body.offset].width - BoxCropsVoid.width, 0.45f * m_cropBoxs[kreature->body.offset].height + BoxCropsVoid.height }));
