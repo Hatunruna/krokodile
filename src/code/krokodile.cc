@@ -30,6 +30,7 @@
 
 #include "config.h"
 #include "local/KreatureContainer.h"
+#include "local/Messages.h"
 #include "local/Singletons.h"
 
 int main() {
@@ -59,6 +60,13 @@ int main() {
   gf::ScreenView hudView;
   views.addView(hudView);
   views.setInitialScreenSize(ScreenSize);
+
+  kkd::gMessageManager().registerHandler<kkd::KrokodilePosition>([&mainView](gf::Id type, gf::Message *msg) {
+    assert(type == kkd::KrokodilePosition::type);
+    auto positionKrokodileMessage = static_cast<kkd::KrokodilePosition*>(msg);
+    mainView.setCenter(positionKrokodileMessage->position);
+    return gf::MessageStatus::Keep;
+  });
 
   // actions
   gf::ActionContainer actions;
