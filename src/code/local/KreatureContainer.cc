@@ -166,13 +166,34 @@ namespace kkd {
   }
 
   void KreatureContainer::checkComplete() {
-    if (m_kreatures[0]->head.color == ColorName::Green
-        && m_kreatures[0]->body.color == ColorName::Green
-        && m_kreatures[0]->limbs.color == ColorName::Green
-        && m_kreatures[0]->tail.color == ColorName::Green ) {
+    auto& player = getPlayer();
+
+    if (player.head.canBeK() && player.body.canBeK() && player.limbs.canBeK() && player.tail.canBeK()) {
       CompleteGame msg;
       gMessageManager().sendMessage(&msg);
     }
+  }
+
+  void KreatureContainer::createKrokodile() {
+    float x = gRandom().computeUniformFloat(MinBound, MaxBound);
+    float y = gRandom().computeUniformFloat(MinBound, MaxBound);
+
+    float xTarget = gRandom().computeUniformFloat(MinBound, MaxBound);
+    float yTarget = gRandom().computeUniformFloat(MinBound, MaxBound);
+
+    float rotation = gRandom().computeUniformFloat(0.0f, 2 * gf::Pi);
+
+    auto kreature = std::make_unique<Kreature>(gf::Vector2f(x, y), rotation, gf::Vector2f(xTarget, yTarget));
+    kreature->body.color = Green;
+    kreature->body.offset = 0;
+    kreature->head.color = Green;
+    kreature->head.offset = 0;
+    kreature->limbs.color = Green;
+    kreature->limbs.offset = 0;
+    kreature->tail.color = Green;
+    kreature->tail.offset = 0;
+
+    m_kreatures.push_back(std::move(kreature));
   }
 
   void KreatureContainer::resetActivities(Kreature& kreature) {

@@ -137,10 +137,10 @@ int main() {
 
   //Konami
   gf::KonamiKeyboardControl konami;
-
   gf::Action easterEgg("Easter egg");
   easterEgg.addControl(konami);
   easterEgg.setInstantaneous();
+  actions.addAction(easterEgg);
 
   // entities
   gf::EntityContainer mainEntities;
@@ -166,8 +166,6 @@ int main() {
     while (window.pollEvent(event)) {
       actions.processEvent(event);
       views.processEvent(event);
-
-      easterEgg.processEvent(event);
     }
 
     if (closeWindowAction.isActive()) {
@@ -184,8 +182,9 @@ int main() {
     } else if (leftAction.isActive()) {
       kreatures.playerSidedMove(-1);
     }
+
     if (upAction.isActive()) {
-        kreatures.playerForwardMove(1);
+      kreatures.playerForwardMove(1);
     } else if (downAction.isActive()) {
       kreatures.playerForwardMove(-1);
     }
@@ -193,16 +192,14 @@ int main() {
     if (swapAction.isActive()) {
       kreatures.swapKreature();
     }
+
     if (fusionAction.isActive()) {
       kreatures.fusionDNA();
       nbGen++;
     }
 
     if (easterEgg.isActive()) {
-      //Do event or message
-      std::cout << "###############\n";
-      std::cout << "# Easter egg! #\n";
-      std::cout << "###############\n";
+      kreatures.createKrokodile();
     }
 
     // 2. update

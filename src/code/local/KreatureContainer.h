@@ -44,6 +44,10 @@ namespace kkd {
     struct Part {
       int offset = 0;
       ColorName color;
+
+      bool canBeK() const {
+        return offset == 0 && color == Green;
+      }
     };
 
     struct Kreature {
@@ -84,6 +88,7 @@ namespace kkd {
 
     void removeDeadKreature();
     void checkComplete();
+    void createKrokodile();
 
     void resetActivities(Kreature& kreature);
 
