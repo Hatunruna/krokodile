@@ -29,12 +29,17 @@ namespace kkd {
   public:
     explicit KreatureContainer();
 
+    void playerForwardMove(int direction);
+    void playerSidedMove(int direction);
+
     virtual void update(gf::Time time) override;
     virtual void render(gf::RenderTarget &target, const gf::RenderStates &states) override;
 
   private:
     static const constexpr int MaxAge = 5;
     static const constexpr int SpawnLimit = 5;
+    static const constexpr float ForwardVelocity = 20.0f;
+    static const constexpr float SideVelocity = 2.0f;
 
   private:
     struct Kreature {
@@ -53,6 +58,8 @@ namespace kkd {
 
       gf::Vector2f position;
       float orientation;
+      float forwardMove = 0; // 1 to forward / -1 to backward
+      float sideMove = 0; // 1 to rigth / -1 to left
     };
 
   private:

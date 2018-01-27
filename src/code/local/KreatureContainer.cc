@@ -49,35 +49,49 @@ namespace kkd {
 
   }
 
-KreatureContainer::KreatureContainer() {
-  for (int i = 0; i < SpawnLimit; ++i) {
-    float x = gRandom().computeUniformFloat(-50.0f, 50.0f);
-    float y = gRandom().computeUniformFloat(-50.0f, 50.0f);
+  KreatureContainer::KreatureContainer() {
+    for (int i = 0; i < SpawnLimit; ++i) {
+      float x = gRandom().computeUniformFloat(-50.0f, 50.0f);
+      float y = gRandom().computeUniformFloat(-50.0f, 50.0f);
 
-    Kreature kreature;
-    kreature.position = { x, y };
-    kreature.bodyColor = gRandom().computeUniformInteger(0, 4);
-    kreature.orientation = gRandom().computeUniformFloat(0.0f, 2 * gf::Pi);
+      Kreature kreature;
+      kreature.position = { x, y };
+      kreature.bodyColor = gRandom().computeUniformInteger(0, 4);
+      kreature.orientation = gRandom().computeUniformFloat(0.0f, 2 * gf::Pi);
 
-    m_kreatures.push_back(kreature);
+      m_kreatures.push_back(kreature);
+    }
   }
-}
 
-void KreatureContainer::update(gf::Time time) {
-  for (auto &kreature: m_kreatures) {
-    // do something
+  void KreatureContainer::playerForwardMove(int direction) {
+    m_kreatures[0].forwardMove = direction;
   }
-}
 
-void KreatureContainer::render(gf::RenderTarget &target, const gf::RenderStates &states) {
-  for (auto &kreature: m_kreatures) {
-    gf::RectangleShape rect({ 10.0f, 5.0f });
-    rect.setColor(getKreaturColor(kreature.bodyColor));
-    rect.setPosition(kreature.position);
-    rect.setRotation(kreature.orientation);
-    rect.setAnchor(gf::Anchor::Center);
-    rect.draw(target, states);
+  void KreatureContainer::playerSidedMove(int direction) {
+    m_kreatures[0].sideMove = direction;
   }
-}
+
+  void KreatureContainer::update(gf::Time time) {
+    for (auto &kreature: m_kreatures) {
+      // Update the orientation
+      kreature.orientation += SideVelocity * kreature.sideMove * time.asSeconds();
+      kreature.sideMove = 0;
+
+      // Update the position
+      kreature.position += gf::unit(kreature.orientation) * ForwardVelocity * kreature.forwardMove * time.asSeconds();
+      kreature.forwardMove = 0;
+    }
+  }
+
+  void KreatureContainer::render(gf::RenderTarget &target, const gf::RenderStates &states) {
+    for (auto &kreature: m_kreatures) {
+      gf::RectangleShape rect({ 10.0f, 5.0f });
+      rect.setColor(getKreaturColor(kreature.bodyColor));
+      rect.setPosition(kreature.position);
+      rect.setRotation(kreature.orientation);
+      rect.setAnchor(gf::Anchor::Center);
+      rect.draw(target, states);
+    }
+  }
 
 }

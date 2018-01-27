@@ -123,15 +123,14 @@ int main() {
     }
 
     if (rightAction.isActive()) {
-      // do something
+      kreatures.playerSidedMove(1);
     } else if (leftAction.isActive()) {
-      // do something
-    } else if (upAction.isActive()) {
-      // do something
+      kreatures.playerSidedMove(-1);
+    }
+    if (upAction.isActive()) {
+        kreatures.playerForwardMove(1);
     } else if (downAction.isActive()) {
-      // do something
-    } else {
-      // do something
+      kreatures.playerForwardMove(-1);
     }
 
     // 2. update
