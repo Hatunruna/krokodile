@@ -99,6 +99,7 @@ namespace kkd {
     static constexpr float MaxBound = 1500.0f;
     static constexpr float MinBound = - MaxBound;
 
+    static constexpr float FusionFoodConsumption = 0.80f * FoodLevelMax;
     static constexpr float UpperFusionFactor = 0.75f;
     static constexpr float LowerFusionFactor = 0.25f;
     static constexpr float FumbleMutation = 0.90f;
@@ -108,6 +109,7 @@ namespace kkd {
     std::vector< std::unique_ptr<Kreature> >::iterator getCloserKreature();
     int colorCompare(ColorName color1, ColorName color2);
     ColorName fusionBodyPart(ColorName currentColor, ColorName otherColor);
+    void addFoodLevel(float consumption);
 
   private:
     std::vector< std::unique_ptr<Kreature> > m_kreatures;
