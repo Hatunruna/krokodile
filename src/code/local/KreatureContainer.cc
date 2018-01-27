@@ -77,14 +77,20 @@ namespace kkd {
   }
 
   void KreatureContainer::update(gf::Time time) {
+    assert(!m_kreatures.empty());
+
     // Update the player
+    Kreature& player = *m_kreatures[0];
+
     // Update the orientation
-    m_kreatures[0]->orientation += SideVelocity * m_kreatures[0]->sideMove * time.asSeconds();
-    m_kreatures[0]->sideMove = 0;
+    player.orientation += SideVelocity * m_kreatures[0]->sideMove * time.asSeconds();
+    player.sideMove = 0;
 
     // Update the position
-    m_kreatures[0]->position += gf::unit(m_kreatures[0]->orientation) * ForwardVelocity * m_kreatures[0]->forwardMove * time.asSeconds();
-    m_kreatures[0]->forwardMove = 0;
+    player.position += gf::unit(m_kreatures[0]->orientation) * ForwardVelocity * m_kreatures[0]->forwardMove * time.asSeconds();
+    player.forwardMove = 0;
+
+    player.position = gf::clamp(player.position, MinBound, MaxBound);
 
     // Update AI
     for (unsigned i = 1; i < m_kreatures.size(); ++i) {

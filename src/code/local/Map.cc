@@ -25,18 +25,18 @@ namespace kkd {
 
   Map::Map()
   : m_texture(gResourceManager().getTexture("tileset.png"))
-  , m_layer({ 50u, 50u })
+  , m_layer({ Size, Size })
   {
     m_layer.setTexture(m_texture);
     m_layer.setTileSize({ 64u, 64u });
 
-    for (unsigned y = 0; y < 50; ++y) {
-      for (unsigned x = 0; x < 50; ++x) {
+    for (unsigned y = 0; y < Size; ++y) {
+      for (unsigned x = 0; x < Size; ++x) {
         m_layer.setTile({ x, y }, gRandom().computeUniformInteger(0, 3));
       }
     }
 
-    m_layer.setOrigin({ 64.f * 25, 64.f * 25 });
+    m_layer.setOrigin({ 64.f * Size / 2, 64.f * Size / 2 });
   }
 
   void Map::render(gf::RenderTarget &target, const gf::RenderStates &states) {
