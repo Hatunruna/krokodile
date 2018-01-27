@@ -33,15 +33,15 @@ namespace kkd {
     gf::Color4f getKreatureColor(KreatureContainer::ColorName ith) {
       switch (ith) {
         case KreatureContainer::Azure:
-          return gf::Color::darker(gf::Color::Azure, 0.25);
+          return gf::Color::Azure;
         case KreatureContainer::Green:
-          return gf::Color::darker(gf::Color::Green, 0.25);
+          return gf::Color::Green;
         case KreatureContainer::Yellow:
-          return gf::Color::darker(gf::Color::Yellow, 0.25);
+          return gf::Color::lighter(gf::Color::Yellow, 0.25f);
         case KreatureContainer::Red:
-          return gf::Color::darker(gf::Color::Red, 0.25);
+          return gf::Color::lighter(gf::Color::Red, 0.25f);
         case KreatureContainer::Magenta:
-          return gf::Color::darker(gf::Color::Magenta, 0.25);
+          return gf::Color::lighter(gf::Color::Magenta, 0.25f);
         default:
           break;
       }
