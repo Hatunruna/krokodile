@@ -185,8 +185,8 @@ namespace kkd {
 
     // Send stats to HUD
     KrokodileStats stats;
-    stats.foodLevel = m_kreatures[0]->foodLevel;
-    stats.ageLevel = m_kreatures[0]->ageLevel;
+    stats.foodLevel = player.foodLevel;
+    stats.ageLevel = player.ageLevel;
     gMessageManager().sendMessage(&stats);
   }
 
@@ -350,7 +350,7 @@ namespace kkd {
   }
 
   void KreatureContainer::addFoodLevel(float consumption) {
-    auto player = getPlayer();
+    auto& player = getPlayer();
     player.foodLevel += consumption;
     player.foodLevel = gf::clamp(player.foodLevel, 0.0f, FoodLevelMax);
   }
