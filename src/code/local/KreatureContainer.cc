@@ -102,7 +102,7 @@ namespace kkd {
     auto &currentKreature = m_kreatures[0];
 
     // If the kreatures is too for
-    if (gf::euclideanDistance((*closerKreature)->position, currentKreature->position) > LimitLengthFusion || currentKreature->ageLevel <= 0) {
+    if (gf::euclideanDistance((*closerKreature)->position, currentKreature->position) > LimitLengthFusion || currentKreature->ageLevel <= 0 || currentKreature->foodLevel < FusionFoodConsumption) {
       return;
     }
 
@@ -125,6 +125,9 @@ namespace kkd {
 
     // Body limbs
     child->limbsColor = fusionBodyPart(currentKreature->limbsColor, (*closerKreature)->limbsColor);
+
+
+    addFoodLevel(-FusionFoodConsumption);
 
     --currentKreature->ageLevel;
 
@@ -178,13 +181,7 @@ namespace kkd {
     gMessageManager().sendMessage(&message);
 
     // Update the food level
-    m_kreatures[0]->foodLevel += time.asSeconds() * FoodLevelSteps;
-    if (m_kreatures[0]->foodLevel > FoodLevelMax) {
-      m_kreatures[0]->foodLevel = FoodLevelMax;
-    }
-    else if (m_kreatures[0]->foodLevel < 0.0f ){
-      m_kreatures[0]->foodLevel = 0.0f;
-    }
+    addFoodLevel(time.asSeconds() * FoodLevelSteps);
 
     // Send stats to HUD
     KrokodileStats stats;
@@ -335,6 +332,17 @@ namespace kkd {
     }
 
     return currentColor;
+  }
+
+  void KreatureContainer::addFoodLevel(float consumption) {
+    m_kreatures[0]->foodLevel += consumption;
+
+    if (m_kreatures[0]->foodLevel > FoodLevelMax) {
+      m_kreatures[0]->foodLevel = FoodLevelMax;
+    }
+    else if (m_kreatures[0]->foodLevel < 0.0f ){
+      m_kreatures[0]->foodLevel = 0.0f;
+    }
   }
 
 }
