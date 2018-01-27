@@ -68,6 +68,9 @@ namespace kkd {
   public:
     explicit KreatureContainer();
 
+    float getPlayerFoodLevel() const;
+    int getPlayerGen() const;
+
     void playerForwardMove(int direction);
     void playerSidedMove(int direction);
     void swapKreature();
@@ -84,6 +87,7 @@ namespace kkd {
     static const constexpr float SideVelocity = 2.0f;
     static const constexpr float activityRotationTime = 1.0f;
     static const constexpr float AiMalusVelocity = 0.80f;
+    static const constexpr float FoodLevelMax = 100.0f;
 
     static constexpr float MaxBound = 1500.0f;
     static constexpr float MinBound = - MaxBound;
