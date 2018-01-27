@@ -199,44 +199,45 @@ namespace kkd {
       body.setColor(getKreatureColor(kreature->bodyColor));
       body.setPosition(kreature->position);
       body.setRotation(kreature->orientation);
-      body.setAnchor(gf::Anchor::Center);
 
       gf::Matrix3f bodyMatrix = body.getTransform();
+
+      body.setAnchor(gf::Anchor::Center);
 
       gf::RectangleShape head({ 25.0f, 25.0f });
       head.setAnchor(gf::Anchor::CenterLeft);
       head.setColor(getKreatureColor(kreature->headColor));
-      head.setPosition(gf::transform(bodyMatrix, {100.0f, 25.0f}));
+      head.setPosition(gf::transform(bodyMatrix, {50.0f, 0.0f}));
       head.setRotation(kreature->orientation);
 
       gf::RectangleShape armLeft({50.0f, 25.0f});
       armLeft.setAnchor(gf::Anchor::BottomCenter);
       armLeft.setColor(getKreatureColor(kreature->limbsColor));
-      armLeft.setPosition(gf::transform(bodyMatrix, {85.0f, 0.0f}));
+      armLeft.setPosition(gf::transform(bodyMatrix, {35.0f, -25.0f}));
       armLeft.setRotation(kreature->orientation);
 
       gf::RectangleShape armRight({50.0f, 25.0f});
       armRight.setAnchor(gf::Anchor::TopCenter);
       armRight.setColor(getKreatureColor(kreature->limbsColor));
-      armRight.setPosition(gf::transform(bodyMatrix, {85.0f, 50.0f}));
+      armRight.setPosition(gf::transform(bodyMatrix, {35.0f, 25.0f}));
       armRight.setRotation(kreature->orientation);
 
       gf::RectangleShape legLeft({50.0f, 25.0f});
       legLeft.setAnchor(gf::Anchor::BottomCenter);
       legLeft.setColor(getKreatureColor(kreature->limbsColor));
-      legLeft.setPosition(gf::transform(bodyMatrix, {15.0f, 0.0f}));
+      legLeft.setPosition(gf::transform(bodyMatrix, {-35.0f, -25.0f}));
       legLeft.setRotation(kreature->orientation);
 
       gf::RectangleShape legRight({50.0f, 25.0f});
       legRight.setAnchor(gf::Anchor::TopCenter);
       legRight.setColor(getKreatureColor(kreature->limbsColor));
-      legRight.setPosition(gf::transform(bodyMatrix, {15.0f, 50.0f}));
+      legRight.setPosition(gf::transform(bodyMatrix, {-35.0f, 25.0f}));
       legRight.setRotation(kreature->orientation);
 
       gf::RectangleShape tail({75.0f, 25.0f});
       tail.setAnchor(gf::Anchor::CenterRight);
       tail.setColor(getKreatureColor(kreature->tailColor));
-      tail.setPosition(gf::transform(bodyMatrix, {0.0f, 25.0f}));
+      tail.setPosition(gf::transform(bodyMatrix, {-50.0f, 0.0f}));
       tail.setRotation(kreature->orientation);
 
       armLeft.draw(target, states);
