@@ -30,12 +30,13 @@
 
 #include "config.h"
 #include "local/KreatureContainer.h"
+#include "local/Map.h"
 #include "local/Messages.h"
 #include "local/Singletons.h"
 
 int main() {
   static constexpr gf::Vector2u ScreenSize(1024, 576);
-  static constexpr gf::Vector2f ViewSize(100.0f, 100.0f); // dummy values
+  static constexpr gf::Vector2f ViewSize(1000.0f, 1000.0f); // dummy values
   static constexpr gf::Vector2f ViewCenter(0.0f, 0.0f); // dummy values
 
   // Set the singletons
@@ -109,6 +110,10 @@ int main() {
 
   // entities
   gf::EntityContainer mainEntities;
+
+  kkd::Map map;
+  mainEntities.addEntity(map);
+
   kkd::KreatureContainer kreatures;
   mainEntities.addEntity(kreatures);
 

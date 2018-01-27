@@ -80,10 +80,13 @@ namespace kkd {
   private:
     static const constexpr int MaxAge = 5;
     static const constexpr int SpawnLimit = 5;
-    static const constexpr float ForwardVelocity = 20.0f;
+    static const constexpr float ForwardVelocity = 200.0f;
     static const constexpr float SideVelocity = 2.0f;
     static const constexpr float activityRotationTime = 1.0f;
     static const constexpr float AiMalusVelocity = 0.80f;
+
+    static constexpr float MaxBound = 1500.0f;
+    static constexpr float MinBound = - MaxBound;
 
   private:
     std::vector< std::unique_ptr<Kreature> > m_kreatures;

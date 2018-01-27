@@ -52,11 +52,11 @@ namespace kkd {
   KreatureContainer::KreatureContainer() {
     for (int i = 0; i < SpawnLimit; ++i) {
       // Get the initial value
-      float x = gRandom().computeUniformFloat(-50.0f, 50.0f);
-      float y = gRandom().computeUniformFloat(-50.0f, 50.0f);
+      float x = gRandom().computeUniformFloat(MinBound, MaxBound);
+      float y = gRandom().computeUniformFloat(MinBound, MaxBound);
 
-      float xTarget = gRandom().computeUniformFloat(-50.0f, 50.0f);
-      float yTarget = gRandom().computeUniformFloat(-50.0f, 50.0f);
+      float xTarget = gRandom().computeUniformFloat(MinBound, MaxBound);
+      float yTarget = gRandom().computeUniformFloat(MinBound, MaxBound);
 
       float rotation = gRandom().computeUniformFloat(0.0f, 2 * gf::Pi);
 
@@ -91,8 +91,8 @@ namespace kkd {
   }
 
   void KreatureContainer::resetActivities(std::unique_ptr<Kreature> &kreature) {
-    float xTarget = gRandom().computeUniformFloat(-50.0f, 50.0f);
-    float yTarget = gRandom().computeUniformFloat(-50.0f, 50.0f);
+    float xTarget = gRandom().computeUniformFloat(MinBound, MaxBound);
+    float yTarget = gRandom().computeUniformFloat(MinBound, MaxBound);
     gf::Vector2f target = { xTarget, yTarget };
 
     // Reset the activities
@@ -107,14 +107,20 @@ namespace kkd {
   }
 
   void KreatureContainer::update(gf::Time time) {
+    assert(!m_kreatures.empty());
+
     // Update the player
+    Kreature& player = *m_kreatures[0];
+
     // Update the orientation
-    m_kreatures[0]->orientation += SideVelocity * m_kreatures[0]->sideMove * time.asSeconds();
-    m_kreatures[0]->sideMove = 0;
+    player.orientation += SideVelocity * m_kreatures[0]->sideMove * time.asSeconds();
+    player.sideMove = 0;
 
     // Update the position
-    m_kreatures[0]->position += gf::unit(m_kreatures[0]->orientation) * ForwardVelocity * m_kreatures[0]->forwardMove * time.asSeconds();
-    m_kreatures[0]->forwardMove = 0;
+    player.position += gf::unit(m_kreatures[0]->orientation) * ForwardVelocity * m_kreatures[0]->forwardMove * time.asSeconds();
+    player.forwardMove = 0;
+
+    player.position = gf::clamp(player.position, MinBound, MaxBound);
 
     // Update AI
     for (unsigned i = 1; i < m_kreatures.size(); ++i) {
@@ -135,7 +141,7 @@ namespace kkd {
     for (unsigned i = 0; i < m_kreatures.size(); ++i) {
       auto &kreature = m_kreatures[i];
 
-      gf::RectangleShape rect({ 10.0f, 5.0f });
+      gf::RectangleShape rect({ 100.0f, 50.0f });
       rect.setColor(getKreaturColor(kreature->bodyColor));
       rect.setPosition(kreature->position);
       rect.setRotation(kreature->orientation);
