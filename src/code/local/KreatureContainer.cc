@@ -166,10 +166,10 @@ namespace kkd {
   }
 
   void KreatureContainer::checkComplete() {
-    if (m_kreatures[0]->headColor == ColorName::Green
-        && m_kreatures[0]->bodyColor == ColorName::Green
-        && m_kreatures[0]->limbsColor == ColorName::Green
-        && m_kreatures[0]->tailColor == ColorName::Green ) {
+    if (m_kreatures[0]->head.color == ColorName::Green
+        && m_kreatures[0]->body.color == ColorName::Green
+        && m_kreatures[0]->limbs.color == ColorName::Green
+        && m_kreatures[0]->tail.color == ColorName::Green ) {
       CompleteGame msg;
       gMessageManager().sendMessage(&msg);
     }
