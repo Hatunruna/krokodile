@@ -41,6 +41,11 @@ namespace kkd {
     };
 
   private:
+    struct Part {
+      int offset = 0;
+      ColorName color;
+    };
+
     struct Kreature {
       Kreature(gf::Vector2f kreaPosition, float kreaRotation, gf::Vector2f kreaTarget)
       : position(kreaPosition)
@@ -54,14 +59,10 @@ namespace kkd {
       int ageLevel = MaxAge;
       float foodLevel = 0.0f;
 
-      int headSprite = 0;
-      ColorName headColor;
-      int bodySprite = 0;
-      ColorName bodyColor;
-      int limbsSprite = 0;
-      ColorName limbsColor;
-      int tailSprite = 0;
-      ColorName tailColor;
+      Part head;
+      Part body;
+      Part limbs;
+      Part tail;
 
       gf::Vector2f position;
       float orientation;
@@ -111,7 +112,7 @@ namespace kkd {
     const Kreature& getPlayer() const;
     std::unique_ptr<Kreature>& getCloserKreature();
     int colorCompare(ColorName color1, ColorName color2);
-    ColorName fusionPart(ColorName currentColor, ColorName otherColor);
+    Part fusionPart(Part currentPart, Part otherPart);
     void addFoodLevel(float consumption);
 
   private:

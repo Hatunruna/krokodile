@@ -73,10 +73,10 @@ namespace kkd {
       float rotation = gRandom().computeUniformFloat(0.0f, 2 * gf::Pi);
 
       auto kreature = std::make_unique<Kreature>(gf::Vector2f(x, y), rotation, gf::Vector2f(xTarget, yTarget));
-      kreature->bodyColor = randomColor();
-      kreature->headColor = randomColor();
-      kreature->limbsColor = randomColor();
-      kreature->tailColor = randomColor();
+      kreature->body.color = randomColor();
+      kreature->head.color = randomColor();
+      kreature->limbs.color = randomColor();
+      kreature->tail.color = randomColor();
 
       m_kreatures.push_back(std::move(kreature));
     }
@@ -121,16 +121,16 @@ namespace kkd {
     auto child = std::make_unique<Kreature>(newPosition, rotation, gf::Vector2f(xTarget, yTarget));
 
     // Body fusion
-    child->bodyColor = fusionPart(currentKreature->bodyColor, closerKreature->bodyColor);
+    child->body = fusionPart(currentKreature->body, closerKreature->body);
 
     // Body head
-    child->headColor = fusionPart(currentKreature->headColor, closerKreature->headColor);
+    child->head = fusionPart(currentKreature->head, closerKreature->head);
 
     // Body tail
-    child->tailColor = fusionPart(currentKreature->tailColor, closerKreature->tailColor);
+    child->tail = fusionPart(currentKreature->tail, closerKreature->tail);
 
     // Body limbs
-    child->limbsColor = fusionPart(currentKreature->limbsColor, closerKreature->limbsColor);
+    child->limbs = fusionPart(currentKreature->limbs, closerKreature->limbs);
 
 
     addFoodLevel(-FusionFoodConsumption);
@@ -205,7 +205,7 @@ namespace kkd {
 
       gf::Sprite body(m_kreatureBodyTexture);
       body.setScale(BodyWorldSize / BodySpriteSize);
-      body.setColor(getKreatureColor(kreature->bodyColor));
+      body.setColor(getKreatureColor(kreature->body.color));
       body.setPosition(kreature->position);
       body.setRotation(kreature->orientation);
 
@@ -219,10 +219,10 @@ namespace kkd {
       // Not work !
       // static constexpr gf::Vector2f HeadScale = HeadWorldSize / HeadSpriteSize;
 
-      gf::Sprite head(m_kreatureHeadTexture, gf::RectF(kreature->headSprite * gf::Vector2f(0.5f, 0.0f), { 0.5f, 1.0f }));
+      gf::Sprite head(m_kreatureHeadTexture, gf::RectF(kreature->head.offset * gf::Vector2f(0.5f, 0.0f), { 0.5f, 1.0f }));
       head.setScale(HeadWorldSize.x / HeadSpriteSize);
       head.setAnchor(gf::Anchor::CenterLeft);
-      head.setColor(getKreatureColor(kreature->headColor));
+      head.setColor(getKreatureColor(kreature->head.color));
       head.setPosition(gf::transform(bodyMatrix, {128.0f, 0.0f}));
       head.setRotation(kreature->orientation);
       head.draw(target, states);
@@ -230,10 +230,10 @@ namespace kkd {
       static constexpr gf::Vector2f AnteLegSpriteSize = { 128.0f, 128.0f };
       static constexpr gf::Vector2f AnteLegWorldSize = { 64.0f, 64.0f };
 
-      gf::Sprite anteLeg(m_kreatureAnteLegTexture, gf::RectF(kreature->limbsSprite * gf::Vector2f(0.5f, 0.0f), { 0.5f, 1.0f }));
+      gf::Sprite anteLeg(m_kreatureAnteLegTexture, gf::RectF(kreature->limbs.offset * gf::Vector2f(0.5f, 0.0f), { 0.5f, 1.0f }));
       anteLeg.setScale(AnteLegWorldSize / AnteLegSpriteSize);
       anteLeg.setAnchor(gf::Anchor::BottomCenter);
-      anteLeg.setColor(getKreatureColor(kreature->limbsColor));
+      anteLeg.setColor(getKreatureColor(kreature->limbs.color));
       anteLeg.setPosition(gf::transform(bodyMatrix, {90.0f, -50.0f}));
       anteLeg.setRotation(kreature->orientation);
       anteLeg.draw(target, states);
@@ -247,7 +247,7 @@ namespace kkd {
       gf::Sprite postLeg(m_kreaturePostLegTexture);
       postLeg.setScale(PostLegWorldSize / PostLegSpriteSize);
       postLeg.setAnchor(gf::Anchor::BottomCenter);
-      postLeg.setColor(getKreatureColor(kreature->limbsColor));
+      postLeg.setColor(getKreatureColor(kreature->limbs.color));
       postLeg.setPosition(gf::transform(bodyMatrix, {-70.0f, -40.0f}));
       postLeg.setRotation(kreature->orientation);
       postLeg.draw(target, states);
@@ -261,7 +261,7 @@ namespace kkd {
       gf::Sprite tail(m_kreatureTailTexture);
       tail.setScale(TailWorldSize / TailSpriteSize);
       tail.setAnchor(gf::Anchor::CenterRight);
-      tail.setColor(getKreatureColor(kreature->tailColor));
+      tail.setColor(getKreatureColor(kreature->tail.color));
       tail.setPosition(gf::transform(bodyMatrix, {-128.0f, 0.0f}));
       tail.setRotation(kreature->orientation);
       tail.draw(target, states);
@@ -351,9 +351,11 @@ namespace kkd {
     return 0;
   }
 
-  KreatureContainer::ColorName KreatureContainer::fusionPart(KreatureContainer::ColorName currentColor, KreatureContainer::ColorName otherColor) {
+  KreatureContainer::Part KreatureContainer::fusionPart(KreatureContainer::Part currentPart, KreatureContainer::Part otherPart) {
+    Part newPart = currentPart;
+
     float fusionFactor = 0.0f;
-    if (colorCompare(currentColor, otherColor) == 1) {
+    if (colorCompare(currentPart.color, otherPart.color) == 1) {
       fusionFactor = UpperFusionFactor;
     }
     else {
@@ -362,13 +364,13 @@ namespace kkd {
 
     float rand = gRandom().computeUniformFloat(0.0f, 1.0f);
     if (rand < fusionFactor) {
-      return otherColor;
+      newPart.color = otherPart.color;
     }
-    if (rand >= FumbleMutation) {
-      return randomColor();
+    else if (rand >= FumbleMutation) {
+      newPart.color = randomColor();
     }
 
-    return currentColor;
+    return newPart;
   }
 
   void KreatureContainer::addFoodLevel(float consumption) {
