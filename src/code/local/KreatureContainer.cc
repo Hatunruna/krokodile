@@ -146,10 +146,10 @@ namespace kkd {
 
     addFoodLevel(-FusionFoodConsumption);
 
-    --currentKreature->ageLevel;
+    int age = --(currentKreature->ageLevel);
 
     m_kreatures.push_back(std::move(child));
-    if (currentKreature->ageLevel <= 0) {
+    if (age <= 0) {
       std::iter_swap(m_kreatures.begin(), m_kreatures.end()-1);
     }
     removeDeadKreature();

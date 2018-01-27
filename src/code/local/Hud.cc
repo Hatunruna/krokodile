@@ -8,6 +8,8 @@
 
 #include "Singletons.h"
 
+#define UNUSED(x) (void)(x)
+
 namespace kkd {
 
   Hud::Hud()
@@ -20,6 +22,7 @@ namespace kkd {
 
   void Hud::render(gf::RenderTarget& target, const gf::RenderStates& states)
   {
+    UNUSED(states);
     static constexpr float Padding = 15.0f;
     static constexpr float RatioWarning = 0.8f;
 

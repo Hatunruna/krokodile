@@ -40,6 +40,8 @@
 #include "local/Messages.h"
 #include "local/Singletons.h"
 
+#define UNUSED(x) (void)(x)
+
 int main() {
   bool isGameComplete = false;
   int nbGen = 0;
@@ -60,6 +62,7 @@ int main() {
   kkd::gMessageManager().registerHandler<kkd::CompleteGame>(
       [&isGameComplete, &startClock, &endTime](gf::Id type, gf::Message *msg) {
         assert(type == kkd::CompleteGame::type);
+        UNUSED(msg);
         isGameComplete = true;
         endTime = startClock.getElapsedTime().asSeconds();
         return gf::MessageStatus::Keep;
