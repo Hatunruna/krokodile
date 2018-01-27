@@ -125,6 +125,7 @@ namespace kkd {
     gf::Texture& m_kreatureAnteLegTexture;
     gf::Texture& m_kreatureBodyTexture;
     gf::Texture& m_kreatureTailTexture;
+    std::vector< gf::RectF > m_cropBoxs;
   };
 } /* kkd */
 

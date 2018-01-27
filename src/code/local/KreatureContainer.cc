@@ -67,6 +67,11 @@ namespace kkd {
   , m_kreatureAnteLegTexture(gResourceManager().getTexture("kreature_anteleg.png"))
   , m_kreatureBodyTexture(gResourceManager().getTexture("kreature_body.png"))
   , m_kreatureTailTexture(gResourceManager().getTexture("kreature_tail.png")) {
+    // Define hacks for sprites
+    m_cropBoxs.resize(TotalAnimal);
+    m_cropBoxs[0] = gf::RectF({ 0.0f, 0.0f }, { 128.0f, 135.0f });
+    m_cropBoxs[1] = gf::RectF({ 0.0f, 0.0f }, { 116.0f, 170.0f });
+
     for (int i = 0; i < SpawnLimit; ++i) {
       // Get the initial value
       float x = gRandom().computeUniformFloat(MinBound, MaxBound);
@@ -238,6 +243,7 @@ namespace kkd {
 
       static constexpr gf::Vector2f BodySpriteSize = { 256.0f, 256.0f };
       static constexpr gf::Vector2f BodyWorldSize = { 128.0f, 128.0f };
+      static constexpr gf::Vector2f BoxCropsVoid = { 10.0f, 10.0f };
 
       gf::Sprite body(m_kreatureBodyTexture, gf::RectF(kreature->body.offset * gf::Vector2f(1.0f / TotalAnimal, 0.0f), { 1.0f / TotalAnimal, 1.0f }));
       body.setScale(BodyWorldSize / BodySpriteSize);
@@ -258,7 +264,7 @@ namespace kkd {
       head.setScale(HeadWorldSize.x / HeadSpriteSize);
       head.setAnchor(gf::Anchor::CenterLeft);
       head.setColor(getKreatureColor(kreature->head.color));
-      head.setPosition(gf::transform(bodyMatrix, {128.0f, 0.0f}));
+      head.setPosition(gf::transform(bodyMatrix, { m_cropBoxs[kreature->body.offset].width + BoxCropsVoid.width, 0.0f }));
       head.setRotation(kreature->orientation);
       head.draw(target, states);
 
@@ -269,11 +275,11 @@ namespace kkd {
       anteLeg.setScale(AnteLegWorldSize / AnteLegSpriteSize);
       anteLeg.setAnchor(gf::Anchor::BottomCenter);
       anteLeg.setColor(getKreatureColor(kreature->limbs.color));
-      anteLeg.setPosition(gf::transform(bodyMatrix, {90.0f, -50.0f}));
+      anteLeg.setPosition(gf::transform(bodyMatrix, { 0.60f * m_cropBoxs[kreature->body.offset].width + BoxCropsVoid.width, -0.4f * m_cropBoxs[kreature->body.offset].height - BoxCropsVoid.height }));
       anteLeg.setRotation(kreature->orientation);
       anteLeg.draw(target, states);
       anteLeg.scale({ 1.0f, -1.0f });
-      anteLeg.setPosition(gf::transform(bodyMatrix, {90.0f, 50.0f}));
+      anteLeg.setPosition(gf::transform(bodyMatrix, { 0.60f * m_cropBoxs[kreature->body.offset].width + BoxCropsVoid.width, 0.4f * m_cropBoxs[kreature->body.offset].height + BoxCropsVoid.height }));
       anteLeg.draw(target, states);
 
       static constexpr gf::Vector2f PostLegSpriteSize = { 128.0f, 128.0f };
@@ -283,11 +289,11 @@ namespace kkd {
       postLeg.setScale(PostLegWorldSize / PostLegSpriteSize);
       postLeg.setAnchor(gf::Anchor::BottomCenter);
       postLeg.setColor(getKreatureColor(kreature->limbs.color));
-      postLeg.setPosition(gf::transform(bodyMatrix, {-70.0f, -40.0f}));
+      postLeg.setPosition(gf::transform(bodyMatrix, { -0.40f * m_cropBoxs[kreature->body.offset].width - BoxCropsVoid.width, -0.45f * m_cropBoxs[kreature->body.offset].height - BoxCropsVoid.height}));
       postLeg.setRotation(kreature->orientation);
       postLeg.draw(target, states);
       postLeg.setScale({ PostLegWorldSize.x / PostLegSpriteSize.x, -PostLegWorldSize.y / PostLegSpriteSize.y });
-      postLeg.setPosition(gf::transform(bodyMatrix, {-90.0f, 40.0f}));
+      postLeg.setPosition(gf::transform(bodyMatrix, { -0.40f * m_cropBoxs[kreature->body.offset].width - BoxCropsVoid.width, 0.45f * m_cropBoxs[kreature->body.offset].height + BoxCropsVoid.height }));
       postLeg.draw(target, states);
 
       static constexpr gf::Vector2f TailSpriteSize = { 256.0f, 256.0f };
@@ -297,7 +303,7 @@ namespace kkd {
       tail.setScale(TailWorldSize / TailSpriteSize);
       tail.setAnchor(gf::Anchor::CenterRight);
       tail.setColor(getKreatureColor(kreature->tail.color));
-      tail.setPosition(gf::transform(bodyMatrix, {-128.0f, 0.0f}));
+      tail.setPosition(gf::transform(bodyMatrix, { -m_cropBoxs[kreature->body.offset].width - BoxCropsVoid.width - 5.0f, 0.0f }));
       tail.setRotation(kreature->orientation);
       tail.draw(target, states);
 
