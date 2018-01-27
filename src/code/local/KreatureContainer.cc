@@ -76,14 +76,6 @@ namespace kkd {
     }
   }
 
-  float KreatureContainer::getPlayerFoodLevel() const{
-    return getPlayer().foodLevel;
-  }
-
-  int KreatureContainer::getPlayerGen() const{
-    return getPlayer().ageLevel;
-  }
-
   void KreatureContainer::playerForwardMove(int direction) {
     getPlayer().forwardMove = direction;
   }
@@ -110,7 +102,7 @@ namespace kkd {
     auto& currentKreature = getPlayerPtr();
 
     // If the kreatures is too for
-    if (gf::euclideanDistance(closerKreature->position, currentKreature->position) > LimitLengthFusion || currentKreature->ageLevel <= 0) {
+    if (gf::euclideanDistance(closerKreature->position, currentKreature->position) > LimitLengthFusion || currentKreature->ageLevel <= 0 || currentKreature->foodLevel < FusionFoodConsumption) {
       return;
     }
 
@@ -133,6 +125,9 @@ namespace kkd {
 
     // Body limbs
     child->limbsColor = fusionPart(currentKreature->limbsColor, closerKreature->limbsColor);
+
+
+    addFoodLevel(-FusionFoodConsumption);
 
     --currentKreature->ageLevel;
 
@@ -185,10 +180,14 @@ namespace kkd {
     message.angle = player.orientation;
     gMessageManager().sendMessage(&message);
 
-    player.foodLevel += 0.5f;
-    if (player.foodLevel > FoodLevelMax) {
-      player.foodLevel = 0.0f;
-    }
+    // Update the food level
+    addFoodLevel(time.asSeconds() * FoodLevelSteps);
+
+    // Send stats to HUD
+    KrokodileStats stats;
+    stats.foodLevel = m_kreatures[0]->foodLevel;
+    stats.ageLevel = m_kreatures[0]->ageLevel;
+    gMessageManager().sendMessage(&stats);
   }
 
   void KreatureContainer::render(gf::RenderTarget &target, const gf::RenderStates &states) {
@@ -348,6 +347,12 @@ namespace kkd {
     }
 
     return currentColor;
+  }
+
+  void KreatureContainer::addFoodLevel(float consumption) {
+    auto player = getPlayer();
+    player.foodLevel += consumption;
+    player.foodLevel = gf::clamp(player.foodLevel, 0.0f, FoodLevelMax);
   }
 
 }

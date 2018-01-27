@@ -52,6 +52,7 @@ namespace kkd {
       }
 
       int ageLevel = MaxAge;
+      float foodLevel = 0.0f;
 
       int headSprite;
       ColorName headColor;
@@ -61,8 +62,6 @@ namespace kkd {
       ColorName limbsColor;
       int tailSprite;
       ColorName tailColor;
-
-      float foodLevel = 0.0f;
 
       gf::Vector2f position;
       float orientation;
@@ -77,9 +76,6 @@ namespace kkd {
   public:
     explicit KreatureContainer();
 
-    float getPlayerFoodLevel() const;
-    int getPlayerGen() const;
-
     void playerForwardMove(int direction);
     void playerSidedMove(int direction);
     void swapKreature();
@@ -91,17 +87,19 @@ namespace kkd {
     virtual void render(gf::RenderTarget &target, const gf::RenderStates &states) override;
 
   private:
-    static const constexpr int MaxAge = 5;
-    static const constexpr int SpawnLimit = 50;
-    static const constexpr float ForwardVelocity = 200.0f;
-    static const constexpr float SideVelocity = 2.0f;
-    static const constexpr float activityRotationTime = 1.0f;
-    static const constexpr float AiMalusVelocity = 0.80f;
-    static const constexpr float FoodLevelMax = 100.0f;
+    static constexpr int MaxAge = 5;
+    static constexpr int SpawnLimit = 50;
+    static constexpr float ForwardVelocity = 200.0f;
+    static constexpr float SideVelocity = 2.0f;
+    static constexpr float activityRotationTime = 1.0f;
+    static constexpr float AiMalusVelocity = 0.80f;
+    static constexpr float FoodLevelMax = 100.0f;
+    static constexpr float FoodLevelSteps = 15.0f;
 
     static constexpr float MaxBound = 1500.0f;
     static constexpr float MinBound = - MaxBound;
 
+    static constexpr float FusionFoodConsumption = 0.80f * FoodLevelMax;
     static constexpr float UpperFusionFactor = 0.75f;
     static constexpr float LowerFusionFactor = 0.25f;
     static constexpr float FumbleMutation = 0.90f;
@@ -114,6 +112,7 @@ namespace kkd {
     std::unique_ptr<Kreature>& getCloserKreature();
     int colorCompare(ColorName color1, ColorName color2);
     ColorName fusionPart(ColorName currentColor, ColorName otherColor);
+    void addFoodLevel(float consumption);
 
   private:
     std::vector< std::unique_ptr<Kreature> > m_kreatures;

@@ -7,6 +7,8 @@
 #include <gf/Shapes.h>
 #include <gf/Clock.h>
 
+#include "local/Messages.h"
+
 namespace kkd {
   class Hud: public gf::Entity {
   public:
@@ -14,8 +16,8 @@ namespace kkd {
 
     virtual void render(gf::RenderTarget& target, const gf::RenderStates& states) override;
 
-    void setGenLevel(int gen);
-    void setFoodLevel(float level);
+    gf::MessageStatus onKrokodileStats(gf::Id id, gf::Message *msg);
+
     void setWidth(float width);
   private:
     gf::Font &m_font;

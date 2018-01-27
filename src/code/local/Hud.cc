@@ -3,6 +3,7 @@
 #include <gf/Anchor.h>
 #include <gf/Color.h>
 #include <gf/Text.h>
+#include <gf/VectorOps.h>
 
 #include "Singletons.h"
 
@@ -15,50 +16,63 @@ namespace kkd {
   , m_font(gResourceManager().getFont("blkchcry.ttf"))
   , m_screenWidth(screenWidth)
   {
-    //
+    // register message handler
+    gMessageManager().registerHandler<KrokodileStats>(&Hud::onKrokodileStats, this);
   }
 
   void Hud::render(gf::RenderTarget& target, const gf::RenderStates& states)
   {
     // FOOD INFO
-    gf::RectangleShape foodMaxHud;
-    foodMaxHud.setSize({300.0f, 30.0f});
+    gf::Vector2f foodSize({300.0f, 30.0f});
+    int OutlineThickness = 5;
+    float RatioWarning = 80.0f;
+    gf::RoundedRectangleShape foodMaxHud;
+    foodMaxHud.setSize(foodSize);
+    foodMaxHud.setRadius(10);
     foodMaxHud.setColor(gf::Color::Transparent);
     foodMaxHud.setOutlineColor(gf::Color::White);
-    foodMaxHud.setOutlineThickness(5);
-    foodMaxHud.setPosition({m_screenWidth, 0.0f});
+    foodMaxHud.setOutlineThickness(OutlineThickness);
+    foodMaxHud.setPosition({m_screenWidth - (float)OutlineThickness, (float)OutlineThickness});
     foodMaxHud.setAnchor(gf::Anchor::TopRight);
 
-    gf::RectangleShape foodHud;
-    foodHud.setSize({0.0f, 30.0f});
+    gf::RoundedRectangleShape foodHud;
     foodHud.setColor(gf::Color::Red);
-    foodHud.setPosition({m_screenWidth - 300.0f, 0.0f});
-    foodHud.setSize({m_foodLevel * RATIO_WIDTH_FOOD_HUD, 30.0f});
+    foodHud.setRadius(10);
+    foodHud.setPosition({m_screenWidth - foodSize.x - (float)OutlineThickness, (float)OutlineThickness});
+    foodHud.setSize({m_foodLevel * RATIO_WIDTH_FOOD_HUD, foodSize.y});
+
+    gf::RectangleShape foodWarning;
+    foodWarning.setSize({2.0f, foodSize.y});
+    foodWarning.setColor(gf::Color::Black);
+    foodWarning.setPosition({(m_screenWidth - foodSize.x - (float)OutlineThickness) + RatioWarning * RATIO_WIDTH_FOOD_HUD, (float)OutlineThickness});
 
     // GEN INFO
-    gf::Text genText("Gen : " + std::to_string(m_genNumber), m_font, 75);
+    gf::Text genText("Gen : " + std::to_string(m_genNumber), m_font, 50);
     genText.setColor(gf::Color::White);
     genText.setPosition({0.0f, 0.0f});
     genText.setAnchor(gf::Anchor::TopLeft);
 
     // Timer
-    gf::Text timer("Time : " + std::to_string((int) m_time.getElapsedTime().asSeconds()), m_font, 75);
+    gf::Text timer("Time : " + std::to_string((int) m_time.getElapsedTime().asSeconds()), m_font, 50);
     timer.setColor(gf::Color::White);
     timer.setPosition({0.0f, 80.0f});
     timer.setAnchor(gf::Anchor::TopLeft);
 
     target.draw(foodMaxHud);
     target.draw(foodHud);
+    target.draw(foodWarning);
     target.draw(genText);
     target.draw(timer);
   }
 
-  void Hud::setGenLevel(int gen) {
-    m_genNumber = gen;
-  }
+  gf::MessageStatus Hud::onKrokodileStats(gf::Id id, gf::Message *msg) {
+    assert(id == KrokodileStats::type);
+    KrokodileStats *stats = static_cast<KrokodileStats*>(msg);
 
-  void Hud::setFoodLevel(float level) {
-    m_foodLevel = level;
+    m_genNumber = stats->ageLevel;
+    m_foodLevel = stats->foodLevel;
+
+    return gf::MessageStatus::Keep;
   }
 
   void Hud::setWidth(float width) {
