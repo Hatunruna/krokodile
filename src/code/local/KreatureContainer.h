@@ -82,6 +82,7 @@ namespace kkd {
     void fusionDNA();
 
     void removeDeadKreature();
+    void checkComplete();
 
     void resetActivities(std::unique_ptr<Kreature> &kreature);
 

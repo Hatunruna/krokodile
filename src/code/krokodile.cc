@@ -23,8 +23,9 @@
 #include <gf/Color.h>
 #include <gf/EntityContainer.h>
 #include <gf/Event.h>
-#include <gf/Shapes.h>
 #include <gf/RenderWindow.h>
+#include <gf/Shapes.h>
+#include <gf/Text.h>
 #include <gf/ViewContainer.h>
 #include <gf/Views.h>
 #include <gf/Window.h>
@@ -37,6 +38,9 @@
 #include "local/Singletons.h"
 
 int main() {
+  bool isGameComplete = false;
+  int nbGen = 0;
+
   static constexpr gf::Vector2u ScreenSize(1024, 576);
   static constexpr gf::Vector2f ViewSize(1000.0f, 1000.0f); // dummy values
   static constexpr gf::Vector2f ViewCenter(0.0f, 0.0f); // dummy values
@@ -47,6 +51,16 @@ int main() {
 
   gf::SingletonStorage<gf::MessageManager> storageForMessageManager(kkd::gMessageManager);
   gf::SingletonStorage<gf::Random> storageForRandom(kkd::gRandom);
+
+  gf::Clock startClock;
+  float endTime;
+  kkd::gMessageManager().registerHandler<kkd::CompleteGame>(
+      [&isGameComplete, &startClock, &endTime](gf::Id type, gf::Message *msg) {
+        assert(type == kkd::CompleteGame::type);
+        isGameComplete = true;
+        endTime = startClock.getElapsedTime().asSeconds();
+        return gf::MessageStatus::Keep;
+  });
 
   // initialization
   gf::Window window("Krokodile", ScreenSize);
@@ -168,21 +182,58 @@ int main() {
     }
     if (fusionAction.isActive()) {
       kreatures.fusionDNA();
+      nbGen++;
     }
 
-    // 2. update
     gf::Time time = clock.restart();
-    mainEntities.update(time);
-    hudEntities.update(time);
+    if (!isGameComplete) {
+      // 2. update
+      mainEntities.update(time);
+      hudEntities.update(time);
+    }
 
     // 3. draw
     renderer.clear();
 
-    renderer.setView(mainView);
-    mainEntities.render(renderer);
+    if (!isGameComplete) {
+      renderer.setView(mainView);
+      mainEntities.render(renderer);
 
-    renderer.setView(hudView);
-    hudEntities.render(renderer);
+      renderer.setView(hudView);
+      hudEntities.render(renderer);
+    } else {
+      renderer.setView(hudView);
+
+      gf::Text timeText("Time : " + std::to_string((int)endTime) + " seconds", kkd::gResourceManager().getFont("blkchcry.ttf"), 100);
+      timeText.setOutlineColor(gf::Color::Black);
+      timeText.setOutlineThickness(2.0f);
+      timeText.setColor(gf::Color::White);
+      timeText.setPosition(ScreenSize / 2);
+      timeText.setAnchor(gf::Anchor::Center);
+
+      gf::Text genText("Generations : " + std::to_string(nbGen), kkd::gResourceManager().getFont("blkchcry.ttf"), 100);
+      genText.setOutlineColor(gf::Color::Black);
+      genText.setOutlineThickness(2.0f);
+      genText.setColor(gf::Color::White);
+      gf::Vector2f genTextPos = timeText.getPosition();
+      genTextPos.y -= timeText.getLocalBounds().height / 2;
+      genText.setPosition(genTextPos);
+      genText.setAnchor(gf::Anchor::BottomCenter);
+
+      int finalScore = (int)((10000.0f / (nbGen * endTime + 1)) * 1000.0f);
+      gf::Text scoreText("Score : " + std::to_string(finalScore), kkd::gResourceManager().getFont("blkchcry.ttf"), 100);
+      scoreText.setOutlineColor(gf::Color::Black);
+      scoreText.setOutlineThickness(2.0f);
+      scoreText.setColor(gf::Color::White);
+      gf::Vector2f scoreTextPos = timeText.getPosition();
+      scoreTextPos.y += timeText.getLocalBounds().height / 2;
+      scoreText.setPosition(scoreTextPos);
+      scoreText.setAnchor(gf::Anchor::TopCenter);
+
+      renderer.draw(scoreText);
+      renderer.draw(genText);
+      renderer.draw(timeText);
+    }
 
     renderer.display();
     actions.reset();

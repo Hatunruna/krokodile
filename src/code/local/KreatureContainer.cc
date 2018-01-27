@@ -93,6 +93,8 @@ namespace kkd {
     resetActivities(*(m_kreatures.begin()));
 
     std::iter_swap(m_kreatures.begin(), newKreature);
+
+    checkComplete();
   }
 
   void KreatureContainer::fusionDNA() {
@@ -102,7 +104,7 @@ namespace kkd {
     auto &currentKreature = m_kreatures[0];
 
     // If the kreatures is too for
-    if (gf::euclideanDistance((*closerKreature)->position, currentKreature->position) > LimitLengthFusion || currentKreature->ageLevel <= 0 /*|| currentKreature->foodLevel < FusionFoodConsumption*/) {
+    if (gf::euclideanDistance((*closerKreature)->position, currentKreature->position) > LimitLengthFusion || currentKreature->ageLevel <= 0 || currentKreature->foodLevel < FusionFoodConsumption) {
       return;
     }
 
@@ -136,6 +138,7 @@ namespace kkd {
       std::iter_swap(m_kreatures.begin(), m_kreatures.end()-1);
     }
     removeDeadKreature();
+    checkComplete();
   }
 
   void KreatureContainer::removeDeadKreature() {
@@ -145,6 +148,16 @@ namespace kkd {
           return k->ageLevel <= 0;
         }
       ), m_kreatures.end());
+  }
+
+  void KreatureContainer::checkComplete() {
+    if (m_kreatures[0]->headColor == ColorName::Green
+        && m_kreatures[0]->bodyColor == ColorName::Green
+        && m_kreatures[0]->limbsColor == ColorName::Green
+        && m_kreatures[0]->tailColor == ColorName::Green ) {
+      CompleteGame msg;
+      gMessageManager().sendMessage(&msg);
+    }
   }
 
   void KreatureContainer::resetActivities(std::unique_ptr<Kreature> &kreature) {

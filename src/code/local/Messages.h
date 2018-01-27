@@ -20,6 +20,10 @@ namespace kkd {
     float foodLevel;
     int ageLevel;
   };
+
+  struct CompleteGame: public gf::Message {
+    static constexpr gf::Id type = "Complete"_id;
+  };
 }
 
 #endif // KKD_MESSAGES_H
