@@ -28,6 +28,7 @@
 #include "Messages.h"
 
 namespace kkd {
+  static constexpr int TotalAnimal = 2;
 
   namespace {
     gf::Color4f getKreatureColor(KreatureContainer::ColorName ith) {
@@ -54,6 +55,10 @@ namespace kkd {
       return static_cast<KreatureContainer::ColorName>(gRandom().computeUniformInteger(0, 4));
     }
 
+    int randomOffset() {
+      return gRandom().computeUniformInteger(0, TotalAnimal - 1);
+    }
+
   }
 
   KreatureContainer::KreatureContainer()
@@ -74,9 +79,13 @@ namespace kkd {
 
       auto kreature = std::make_unique<Kreature>(gf::Vector2f(x, y), rotation, gf::Vector2f(xTarget, yTarget));
       kreature->body.color = randomColor();
+      kreature->body.offset = randomOffset();
       kreature->head.color = randomColor();
+      kreature->head.offset = randomOffset();
       kreature->limbs.color = randomColor();
+      kreature->limbs.offset = randomOffset();
       kreature->tail.color = randomColor();
+      kreature->tail.offset = randomOffset();
 
       m_kreatures.push_back(std::move(kreature));
     }
@@ -203,7 +212,7 @@ namespace kkd {
       static constexpr gf::Vector2f BodySpriteSize = { 256.0f, 256.0f };
       static constexpr gf::Vector2f BodyWorldSize = { 128.0f, 128.0f };
 
-      gf::Sprite body(m_kreatureBodyTexture);
+      gf::Sprite body(m_kreatureBodyTexture, gf::RectF(kreature->body.offset * gf::Vector2f(1.0f / TotalAnimal, 0.0f), { 1.0f / TotalAnimal, 1.0f }));
       body.setScale(BodyWorldSize / BodySpriteSize);
       body.setColor(getKreatureColor(kreature->body.color));
       body.setPosition(kreature->position);
@@ -213,13 +222,12 @@ namespace kkd {
 
       body.setAnchor(gf::Anchor::Center);
 
-
       static constexpr gf::Vector2f HeadSpriteSize = { 256.0f, 256.0f };
       static constexpr gf::Vector2f HeadWorldSize = { 128.0f, 128.0f };
       // Not work !
       // static constexpr gf::Vector2f HeadScale = HeadWorldSize / HeadSpriteSize;
 
-      gf::Sprite head(m_kreatureHeadTexture, gf::RectF(kreature->head.offset * gf::Vector2f(0.5f, 0.0f), { 0.5f, 1.0f }));
+      gf::Sprite head(m_kreatureHeadTexture, gf::RectF(kreature->head.offset * gf::Vector2f(1.0f / TotalAnimal, 0.0f), { 1.0f / TotalAnimal, 1.0f }));
       head.setScale(HeadWorldSize.x / HeadSpriteSize);
       head.setAnchor(gf::Anchor::CenterLeft);
       head.setColor(getKreatureColor(kreature->head.color));
@@ -230,7 +238,7 @@ namespace kkd {
       static constexpr gf::Vector2f AnteLegSpriteSize = { 128.0f, 128.0f };
       static constexpr gf::Vector2f AnteLegWorldSize = { 64.0f, 64.0f };
 
-      gf::Sprite anteLeg(m_kreatureAnteLegTexture, gf::RectF(kreature->limbs.offset * gf::Vector2f(0.5f, 0.0f), { 0.5f, 1.0f }));
+      gf::Sprite anteLeg(m_kreatureAnteLegTexture, gf::RectF(kreature->limbs.offset * gf::Vector2f(1.0f / TotalAnimal, 0.0f), { 1.0f / TotalAnimal, 1.0f }));
       anteLeg.setScale(AnteLegWorldSize / AnteLegSpriteSize);
       anteLeg.setAnchor(gf::Anchor::BottomCenter);
       anteLeg.setColor(getKreatureColor(kreature->limbs.color));
@@ -244,7 +252,7 @@ namespace kkd {
       static constexpr gf::Vector2f PostLegSpriteSize = { 128.0f, 128.0f };
       static constexpr gf::Vector2f PostLegWorldSize = { 64.0f, 64.0f };
 
-      gf::Sprite postLeg(m_kreaturePostLegTexture);
+      gf::Sprite postLeg(m_kreaturePostLegTexture, gf::RectF(kreature->limbs.offset * gf::Vector2f(1.0f / TotalAnimal, 0.0f), { 1.0f / TotalAnimal, 1.0f }));
       postLeg.setScale(PostLegWorldSize / PostLegSpriteSize);
       postLeg.setAnchor(gf::Anchor::BottomCenter);
       postLeg.setColor(getKreatureColor(kreature->limbs.color));
@@ -252,13 +260,13 @@ namespace kkd {
       postLeg.setRotation(kreature->orientation);
       postLeg.draw(target, states);
       postLeg.setScale({ PostLegWorldSize.x / PostLegSpriteSize.x, -PostLegWorldSize.y / PostLegSpriteSize.y });
-      postLeg.setPosition(gf::transform(bodyMatrix, {-70.0f, 40.0f}));
+      postLeg.setPosition(gf::transform(bodyMatrix, {-90.0f, 40.0f}));
       postLeg.draw(target, states);
 
       static constexpr gf::Vector2f TailSpriteSize = { 256.0f, 256.0f };
       static constexpr gf::Vector2f TailWorldSize = { 128.0f, 128.0f };
 
-      gf::Sprite tail(m_kreatureTailTexture);
+      gf::Sprite tail(m_kreatureTailTexture, gf::RectF(kreature->tail.offset * gf::Vector2f(1.0f / TotalAnimal, 0.0f), { 1.0f / TotalAnimal, 1.0f }));
       tail.setScale(TailWorldSize / TailSpriteSize);
       tail.setAnchor(gf::Anchor::CenterRight);
       tail.setColor(getKreatureColor(kreature->tail.color));
@@ -365,9 +373,11 @@ namespace kkd {
     float rand = gRandom().computeUniformFloat(0.0f, 1.0f);
     if (rand < fusionFactor) {
       newPart.color = otherPart.color;
+      newPart.offset = otherPart.offset;
     }
     else if (rand >= FumbleMutation) {
       newPart.color = randomColor();
+      newPart.offset = randomOffset();
     }
 
     return newPart;
