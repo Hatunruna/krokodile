@@ -173,6 +173,7 @@ namespace kkd {
 
     // Update the orientation
     player.orientation += SideVelocity * player.sideMove * time.asSeconds();
+    player.orientation = std::remainder(player.orientation, 2 * gf::Pi);
     player.sideMove = 0;
 
     // Update the position
