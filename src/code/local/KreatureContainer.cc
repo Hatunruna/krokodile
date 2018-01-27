@@ -23,7 +23,6 @@
 #include <gf/Shapes.h>
 
 #include "Messages.h"
-#include "Singletons.h"
 
 namespace kkd {
 
@@ -76,6 +75,37 @@ namespace kkd {
     m_kreatures[0]->sideMove = direction;
   }
 
+  void KreatureContainer::swapKreature() {
+    assert(m_kreatures.size() >= 2);
+
+    auto newKreature = std::min_element(m_kreatures.begin() + 1, m_kreatures.end(), [this](auto &krea1, auto &krea2){
+      float length1 = gf::euclideanDistance(m_kreatures[0]->position, krea1->position);
+      float length2 = gf::euclideanDistance(m_kreatures[0]->position, krea2->position);
+      return length1 < length2;
+    });
+
+    // Reset the activity for the old kreature
+    resetActivities(*(m_kreatures.begin()));
+
+    std::iter_swap(m_kreatures.begin(), newKreature);
+  }
+
+  void KreatureContainer::resetActivities(std::unique_ptr<Kreature> &kreature) {
+    float xTarget = gRandom().computeUniformFloat(-50.0f, 50.0f);
+    float yTarget = gRandom().computeUniformFloat(-50.0f, 50.0f);
+    gf::Vector2f target = { xTarget, yTarget };
+
+    // Reset the activities
+    kreature->rotationActivity.setOrigin(kreature->orientation);
+    kreature->rotationActivity.setTarget(gf::angle(target - kreature->position));
+
+    kreature->moveActivity.setOrigin(kreature->position);
+    kreature->moveActivity.setTarget(target);
+    kreature->moveActivity.setDuration(gf::seconds(gf::euclideanDistance(kreature->position, target) / (ForwardVelocity * AiMalusVelocity)));
+
+    kreature->moveSequence.restart();
+  }
+
   void KreatureContainer::update(gf::Time time) {
     // Update the player
     // Update the orientation
@@ -91,19 +121,7 @@ namespace kkd {
       gf::ActivityStatus status = m_kreatures[i]->moveSequence.run(time);
 
       if (status == gf::ActivityStatus::Finished) {
-        float xTarget = gRandom().computeUniformFloat(-50.0f, 50.0f);
-        float yTarget = gRandom().computeUniformFloat(-50.0f, 50.0f);
-        gf::Vector2f target = { xTarget, yTarget };
-
-        // Reset the activities
-        m_kreatures[i]->rotationActivity.setOrigin(m_kreatures[i]->orientation);
-        m_kreatures[i]->rotationActivity.setTarget(gf::angle(target - m_kreatures[i]->position));
-
-        m_kreatures[i]->moveActivity.setOrigin(m_kreatures[i]->position);
-        m_kreatures[i]->moveActivity.setTarget(target);
-        m_kreatures[i]->moveActivity.setDuration(gf::seconds(gf::euclideanDistance(m_kreatures[i]->position, target) / (ForwardVelocity * AiMalusVelocity)));
-
-        m_kreatures[i]->moveSequence.restart();
+        resetActivities(m_kreatures[i]);
       }
     }
 

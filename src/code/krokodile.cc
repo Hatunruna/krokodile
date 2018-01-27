@@ -103,6 +103,10 @@ int main() {
   downAction.setContinuous();
   actions.addAction(downAction);
 
+  gf::Action swapAction("Swap");
+  swapAction.addScancodeKeyControl(gf::Scancode::Tab);
+  actions.addAction(swapAction);
+
   // entities
   gf::EntityContainer mainEntities;
   kkd::KreatureContainer kreatures;
@@ -130,6 +134,7 @@ int main() {
       window.toggleFullscreen();
     }
 
+    // Movement
     if (rightAction.isActive()) {
       kreatures.playerSidedMove(1);
     } else if (leftAction.isActive()) {
@@ -139,6 +144,10 @@ int main() {
         kreatures.playerForwardMove(1);
     } else if (downAction.isActive()) {
       kreatures.playerForwardMove(-1);
+    }
+
+    if (swapAction.isActive()) {
+      kreatures.swapKreature();
     }
 
     // 2. update

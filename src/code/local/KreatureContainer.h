@@ -27,25 +27,10 @@
 #include <gf/Vector.h>
 #include <gf/VectorOps.h>
 
+#include "Singletons.h"
+
 namespace kkd {
   class KreatureContainer : public gf::Entity {
-  public:
-    explicit KreatureContainer();
-
-    void playerForwardMove(int direction);
-    void playerSidedMove(int direction);
-
-    virtual void update(gf::Time time) override;
-    virtual void render(gf::RenderTarget &target, const gf::RenderStates &states) override;
-
-  private:
-    static const constexpr int MaxAge = 5;
-    static const constexpr int SpawnLimit = 5;
-    static const constexpr float ForwardVelocity = 20.0f;
-    static const constexpr float SideVelocity = 2.0f;
-    static const constexpr float activityRotationTime = 1.0f;
-    static const constexpr float AiMalusVelocity = 0.80f;
-
   private:
     struct Kreature {
       Kreature(gf::Vector2f kreaPosition, float kreaRotation, gf::Vector2f kreaTarget)
@@ -79,6 +64,26 @@ namespace kkd {
       gf::MoveToActivity moveActivity;
       gf::SequenceActivity moveSequence;
     };
+
+  public:
+    explicit KreatureContainer();
+
+    void playerForwardMove(int direction);
+    void playerSidedMove(int direction);
+    void swapKreature();
+
+    void resetActivities(std::unique_ptr<Kreature> &kreature);
+
+    virtual void update(gf::Time time) override;
+    virtual void render(gf::RenderTarget &target, const gf::RenderStates &states) override;
+
+  private:
+    static const constexpr int MaxAge = 5;
+    static const constexpr int SpawnLimit = 5;
+    static const constexpr float ForwardVelocity = 20.0f;
+    static const constexpr float SideVelocity = 2.0f;
+    static const constexpr float activityRotationTime = 1.0f;
+    static const constexpr float AiMalusVelocity = 0.80f;
 
   private:
     std::vector< std::unique_ptr<Kreature> > m_kreatures;
