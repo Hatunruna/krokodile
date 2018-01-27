@@ -13,7 +13,7 @@ set(KROKODILE_DATA_DIR "${CMAKE_INSTALL_PREFIX}/share/games/krokodile")
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/code/config.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h @ONLY)
 
 if(NOT MSVC)
-  add_definitions(-Wall -Wextra -g -O2 -std=c++14)
+  add_definitions(-Wall -Wextra -g -O2 -std=c++14 -pedantic)
 endif()
 
 add_executable(krokodile
