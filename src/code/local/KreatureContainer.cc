@@ -155,6 +155,7 @@ namespace kkd {
     addFoodLevel(-FusionFoodConsumption);
 
     int age = --(currentKreature->ageLevel);
+    --(closerKreature->ageLevel);
 
     m_kreatures.push_back(std::move(child));
     if (age <= 0) {
