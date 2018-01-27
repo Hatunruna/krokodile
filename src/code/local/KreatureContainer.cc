@@ -108,8 +108,8 @@ namespace kkd {
     }
 
     KrokodilePosition message;
-    message.position = m_kreatures[0].position;
-    message.angle = m_kreatures[0].orientation;
+    message.position = m_kreatures[0]->position;
+    message.angle = m_kreatures[0]->orientation;
     gMessageManager().sendMessage(&message);
   }
 
