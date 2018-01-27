@@ -30,7 +30,6 @@
 #include <gf/Views.h>
 #include <gf/Window.h>
 
-#include <cstdio>
 #include <iostream>
 
 #include "config.h"
@@ -181,6 +180,7 @@ int main() {
     }
 
     if (easterEgg.isActive()) {
+      //Do event or message
       std::cout << "###############\n";
       std::cout << "# Easter egg! #\n";
       std::cout << "###############\n";
