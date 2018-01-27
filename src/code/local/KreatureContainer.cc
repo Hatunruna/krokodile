@@ -76,14 +76,6 @@ namespace kkd {
     }
   }
 
-  float KreatureContainer::getPlayerFoodLevel() const{
-    return m_kreatures[0]->foodLevel;
-  }
-
-  int KreatureContainer::getPlayerGen() const{
-    return m_kreatures[0]->ageLevel;
-  }
-
   void KreatureContainer::playerForwardMove(int direction) {
     m_kreatures[0]->forwardMove = direction;
   }
@@ -185,10 +177,17 @@ namespace kkd {
     message.angle = m_kreatures[0]->orientation;
     gMessageManager().sendMessage(&message);
 
+    // Update the food level
     m_kreatures[0]->foodLevel += 0.5f;
     if (m_kreatures[0]->foodLevel > FoodLevelMax) {
       m_kreatures[0]->foodLevel = 0.0f;
     }
+
+    // Send stats to HUD
+    KrokodileStats stats;
+    stats.foodLevel = m_kreatures[0]->foodLevel;
+    stats.ageLevel = m_kreatures[0]->ageLevel;
+    gMessageManager().sendMessage(&stats);
   }
 
   void KreatureContainer::render(gf::RenderTarget &target, const gf::RenderStates &states) {

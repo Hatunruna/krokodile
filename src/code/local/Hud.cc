@@ -15,7 +15,8 @@ namespace kkd {
   , m_font(gResourceManager().getFont("blkchcry.ttf"))
   , m_screenWidth(screenWidth)
   {
-    //
+    // register message handler
+    gMessageManager().registerHandler<KrokodileStats>(&Hud::onKrokodileStats, this);
   }
 
   void Hud::render(gf::RenderTarget& target, const gf::RenderStates& states)
@@ -53,12 +54,14 @@ namespace kkd {
     target.draw(timer);
   }
 
-  void Hud::setGenLevel(int gen) {
-    m_genNumber = gen;
-  }
+  gf::MessageStatus Hud::onKrokodileStats(gf::Id id, gf::Message *msg) {
+    assert(id == KrokodileStats::type);
+    KrokodileStats *stats = static_cast<KrokodileStats*>(msg);
 
-  void Hud::setFoodLevel(float level) {
-    m_foodLevel = level;
+    m_genNumber = stats->ageLevel;
+    m_foodLevel = stats->foodLevel;
+
+    return gf::MessageStatus::Keep;
   }
 
   void Hud::setWidth(float width) {

@@ -174,8 +174,6 @@ int main() {
     gf::Time time = clock.restart();
     mainEntities.update(time);
     hudEntities.update(time);
-    hud.setGenLevel(kreatures.getPlayerGen());
-    hud.setFoodLevel(kreatures.getPlayerFoodLevel());
 
     // 3. draw
     renderer.clear();

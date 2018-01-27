@@ -52,6 +52,7 @@ namespace kkd {
       }
 
       int ageLevel = MaxAge;
+      float foodLevel = 0.0f;
 
       int headSprite;
       ColorName headColor;
@@ -61,8 +62,6 @@ namespace kkd {
       ColorName limbsColor;
       int tailSprite;
       ColorName tailColor;
-
-      float foodLevel = 0.0f;
 
       gf::Vector2f position;
       float orientation;
@@ -76,9 +75,6 @@ namespace kkd {
 
   public:
     explicit KreatureContainer();
-
-    float getPlayerFoodLevel() const;
-    int getPlayerGen() const;
 
     void playerForwardMove(int direction);
     void playerSidedMove(int direction);

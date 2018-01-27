@@ -13,6 +13,13 @@ namespace kkd {
     gf::Vector2f position;
     float angle;
   };
+
+  struct KrokodileStats : public gf::Message {
+    static constexpr gf::Id type = "KrokodileStats"_id;
+
+    float foodLevel;
+    int ageLevel;
+  };
 }
 
 #endif // KKD_MESSAGES_H
