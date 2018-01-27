@@ -77,40 +77,40 @@ namespace kkd {
   }
 
   float KreatureContainer::getPlayerFoodLevel() const{
-    return m_kreatures[0]->foodLevel;
+    return getPlayer().foodLevel;
   }
 
   int KreatureContainer::getPlayerGen() const{
-    return m_kreatures[0]->ageLevel;
+    return getPlayer().ageLevel;
   }
 
   void KreatureContainer::playerForwardMove(int direction) {
-    m_kreatures[0]->forwardMove = direction;
+    getPlayer().forwardMove = direction;
   }
 
   void KreatureContainer::playerSidedMove(int direction) {
-    m_kreatures[0]->sideMove = direction;
+    getPlayer().sideMove = direction;
   }
 
   void KreatureContainer::swapKreature() {
     assert(m_kreatures.size() >= 2);
 
-    auto newKreature = getCloserKreature();
+    auto& newKreature = getCloserKreature();
 
     // Reset the activity for the old kreature
-    resetActivities(*(m_kreatures.begin()));
+    resetActivities(getPlayer());
 
-    std::iter_swap(m_kreatures.begin(), newKreature);
+    std::swap(getPlayerPtr(), newKreature);
   }
 
   void KreatureContainer::fusionDNA() {
     assert(m_kreatures.size() >= 2);
 
-    auto closerKreature = getCloserKreature();
-    auto &currentKreature = m_kreatures[0];
+    auto& closerKreature = getCloserKreature();
+    auto& currentKreature = getPlayerPtr();
 
     // If the kreatures is too for
-    if (gf::euclideanDistance((*closerKreature)->position, currentKreature->position) > LimitLengthFusion || currentKreature->ageLevel <= 0) {
+    if (gf::euclideanDistance(closerKreature->position, currentKreature->position) > LimitLengthFusion || currentKreature->ageLevel <= 0) {
       return;
     }
 
@@ -123,50 +123,50 @@ namespace kkd {
     auto child = std::make_unique<Kreature>(newPosition, rotation, gf::Vector2f(xTarget, yTarget));
 
     // Body fusion
-    child->bodyColor = fusionBodyPart(currentKreature->bodyColor, (*closerKreature)->bodyColor);
+    child->bodyColor = fusionPart(currentKreature->bodyColor, closerKreature->bodyColor);
 
     // Body head
-    child->headColor = fusionBodyPart(currentKreature->headColor, (*closerKreature)->headColor);
+    child->headColor = fusionPart(currentKreature->headColor, closerKreature->headColor);
 
     // Body tail
-    child->tailColor = fusionBodyPart(currentKreature->tailColor, (*closerKreature)->tailColor);
+    child->tailColor = fusionPart(currentKreature->tailColor, closerKreature->tailColor);
 
     // Body limbs
-    child->limbsColor = fusionBodyPart(currentKreature->limbsColor, (*closerKreature)->limbsColor);
+    child->limbsColor = fusionPart(currentKreature->limbsColor, closerKreature->limbsColor);
 
     --currentKreature->ageLevel;
 
     m_kreatures.push_back(std::move(child));
   }
 
-  void KreatureContainer::resetActivities(std::unique_ptr<Kreature> &kreature) {
+  void KreatureContainer::resetActivities(Kreature& kreature) {
     float xTarget = gRandom().computeUniformFloat(MinBound, MaxBound);
     float yTarget = gRandom().computeUniformFloat(MinBound, MaxBound);
     gf::Vector2f target = { xTarget, yTarget };
 
     // Reset the activities
-    kreature->rotationActivity.setOrigin(kreature->orientation);
-    kreature->rotationActivity.setTarget(gf::angle(target - kreature->position));
+    kreature.rotationActivity.setOrigin(kreature.orientation);
+    kreature.rotationActivity.setTarget(gf::angle(target - kreature.position));
 
-    kreature->moveActivity.setOrigin(kreature->position);
-    kreature->moveActivity.setTarget(target);
-    kreature->moveActivity.setDuration(gf::seconds(gf::euclideanDistance(kreature->position, target) / (ForwardVelocity * AiMalusVelocity)));
+    kreature.moveActivity.setOrigin(kreature.position);
+    kreature.moveActivity.setTarget(target);
+    kreature.moveActivity.setDuration(gf::seconds(gf::euclideanDistance(kreature.position, target) / (ForwardVelocity * AiMalusVelocity)));
 
-    kreature->moveSequence.restart();
+    kreature.moveSequence.restart();
   }
 
   void KreatureContainer::update(gf::Time time) {
     assert(!m_kreatures.empty());
 
     // Update the player
-    Kreature& player = *m_kreatures[0];
+    Kreature& player = getPlayer();
 
     // Update the orientation
-    player.orientation += SideVelocity * m_kreatures[0]->sideMove * time.asSeconds();
+    player.orientation += SideVelocity * player.sideMove * time.asSeconds();
     player.sideMove = 0;
 
     // Update the position
-    player.position += gf::unit(m_kreatures[0]->orientation) * ForwardVelocity * m_kreatures[0]->forwardMove * time.asSeconds();
+    player.position += gf::unit(player.orientation) * ForwardVelocity * player.forwardMove * time.asSeconds();
     player.forwardMove = 0;
 
     player.position = gf::clamp(player.position, MinBound, MaxBound);
@@ -176,18 +176,18 @@ namespace kkd {
       gf::ActivityStatus status = m_kreatures[i]->moveSequence.run(time);
 
       if (status == gf::ActivityStatus::Finished) {
-        resetActivities(m_kreatures[i]);
+        resetActivities(*m_kreatures[i]);
       }
     }
 
     KrokodilePosition message;
-    message.position = m_kreatures[0]->position;
-    message.angle = m_kreatures[0]->orientation;
+    message.position = player.position;
+    message.angle = player.orientation;
     gMessageManager().sendMessage(&message);
 
-    m_kreatures[0]->foodLevel += 0.5f;
-    if (m_kreatures[0]->foodLevel > FoodLevelMax) {
-      m_kreatures[0]->foodLevel = 0.0f;
+    player.foodLevel += 0.5f;
+    if (player.foodLevel > FoodLevelMax) {
+      player.foodLevel = 0.0f;
     }
   }
 
@@ -250,14 +250,29 @@ namespace kkd {
     }
   }
 
-  std::vector< std::unique_ptr<KreatureContainer::Kreature> >::iterator KreatureContainer::getCloserKreature() {
+  std::unique_ptr<KreatureContainer::Kreature>& KreatureContainer::getPlayerPtr() {
+    assert(!m_kreatures.empty());
+    return m_kreatures.front();
+  }
+
+  KreatureContainer::Kreature& KreatureContainer::getPlayer() {
+    assert(!m_kreatures.empty());
+    return *m_kreatures.front();
+  }
+
+  const KreatureContainer::Kreature& KreatureContainer::getPlayer() const {
+    assert(!m_kreatures.empty());
+    return *m_kreatures.front();
+  }
+
+  std::unique_ptr<KreatureContainer::Kreature>& KreatureContainer::getCloserKreature() {
     auto newKreature = std::min_element(m_kreatures.begin() + 1, m_kreatures.end(), [this](auto &krea1, auto &krea2){
       float length1 = gf::euclideanDistance(m_kreatures[0]->position, krea1->position);
       float length2 = gf::euclideanDistance(m_kreatures[0]->position, krea2->position);
       return length1 < length2;
     });
 
-    return newKreature;
+    return *newKreature;
   }
 
   int KreatureContainer::colorCompare(ColorName color1, ColorName color2) {
@@ -315,7 +330,7 @@ namespace kkd {
     return 0;
   }
 
-  KreatureContainer::ColorName KreatureContainer::fusionBodyPart(KreatureContainer::ColorName currentColor, KreatureContainer::ColorName otherColor) {
+  KreatureContainer::ColorName KreatureContainer::fusionPart(KreatureContainer::ColorName currentColor, KreatureContainer::ColorName otherColor) {
     float fusionFactor = 0.0f;
     if (colorCompare(currentColor, otherColor) == 1) {
       fusionFactor = UpperFusionFactor;

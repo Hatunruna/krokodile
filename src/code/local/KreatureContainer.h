@@ -85,7 +85,7 @@ namespace kkd {
     void swapKreature();
     void fusionDNA();
 
-    void resetActivities(std::unique_ptr<Kreature> &kreature);
+    void resetActivities(Kreature& kreature);
 
     virtual void update(gf::Time time) override;
     virtual void render(gf::RenderTarget &target, const gf::RenderStates &states) override;
@@ -108,9 +108,12 @@ namespace kkd {
     static constexpr float LimitLengthFusion = 150.0f;
 
   private:
-    std::vector< std::unique_ptr<Kreature> >::iterator getCloserKreature();
+    std::unique_ptr<Kreature>& getPlayerPtr();
+    Kreature& getPlayer();
+    const Kreature& getPlayer() const;
+    std::unique_ptr<Kreature>& getCloserKreature();
     int colorCompare(ColorName color1, ColorName color2);
-    ColorName fusionBodyPart(ColorName currentColor, ColorName otherColor);
+    ColorName fusionPart(ColorName currentColor, ColorName otherColor);
 
   private:
     std::vector< std::unique_ptr<Kreature> > m_kreatures;
