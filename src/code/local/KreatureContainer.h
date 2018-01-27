@@ -54,13 +54,13 @@ namespace kkd {
       int ageLevel = MaxAge;
       float foodLevel = 0.0f;
 
-      int headSprite;
+      int headSprite = 0;
       ColorName headColor;
-      int bodySprite;
+      int bodySprite = 0;
       ColorName bodyColor;
-      int limbsSprite;
+      int limbsSprite = 0;
       ColorName limbsColor;
-      int tailSprite;
+      int tailSprite = 0;
       ColorName tailColor;
 
       gf::Vector2f position;
@@ -116,6 +116,11 @@ namespace kkd {
 
   private:
     std::vector< std::unique_ptr<Kreature> > m_kreatures;
+    gf::Texture& m_kreatureHeadTexture;
+    gf::Texture& m_kreaturePostLegTexture;
+    gf::Texture& m_kreatureAnteLegTexture;
+    gf::Texture& m_kreatureBodyTexture;
+    gf::Texture& m_kreatureTailTexture;
   };
 } /* kkd */
 
