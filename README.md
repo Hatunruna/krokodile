@@ -1,5 +1,5 @@
-# krokodile
-Krokodile is a game of DNA Transmission between species to finaly have your mighty Krokodile.
+# Krokodile
+Krokodile is a game of DNA Transmission between species to finally have your mighty Krokodile.
 
 
 ## Required libraries
