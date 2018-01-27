@@ -81,6 +81,8 @@ namespace kkd {
     void swapKreature();
     void fusionDNA();
 
+    void removeDeadKreature();
+
     void resetActivities(std::unique_ptr<Kreature> &kreature);
 
     virtual void update(gf::Time time) override;

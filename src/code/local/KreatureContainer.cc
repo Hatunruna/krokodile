@@ -102,7 +102,7 @@ namespace kkd {
     auto &currentKreature = m_kreatures[0];
 
     // If the kreatures is too for
-    if (gf::euclideanDistance((*closerKreature)->position, currentKreature->position) > LimitLengthFusion || currentKreature->ageLevel <= 0 || currentKreature->foodLevel < FusionFoodConsumption) {
+    if (gf::euclideanDistance((*closerKreature)->position, currentKreature->position) > LimitLengthFusion || currentKreature->ageLevel <= 0 /*|| currentKreature->foodLevel < FusionFoodConsumption*/) {
       return;
     }
 
@@ -132,6 +132,19 @@ namespace kkd {
     --currentKreature->ageLevel;
 
     m_kreatures.push_back(std::move(child));
+    if (currentKreature->ageLevel <= 0) {
+      std::iter_swap(m_kreatures.begin(), m_kreatures.end()-1);
+    }
+    removeDeadKreature();
+  }
+
+  void KreatureContainer::removeDeadKreature() {
+    m_kreatures.erase( std::remove_if(m_kreatures.begin(),
+                                      m_kreatures.end(),
+      [](auto &k) {
+          return k->ageLevel <= 0;
+        }
+      ), m_kreatures.end());
   }
 
   void KreatureContainer::resetActivities(std::unique_ptr<Kreature> &kreature) {
