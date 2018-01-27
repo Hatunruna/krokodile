@@ -22,6 +22,7 @@
 #include <gf/Log.h>
 #include <gf/Math.h>
 #include <gf/Shapes.h>
+#include <gf/Transform.h>
 
 #include "Messages.h"
 
@@ -67,6 +68,9 @@ namespace kkd {
 
       auto kreature = std::make_unique<Kreature>(gf::Vector2f(x, y), rotation, gf::Vector2f(xTarget, yTarget));
       kreature->bodyColor = randomColor();
+      kreature->headColor = randomColor();
+      kreature->limbsColor = randomColor();
+      kreature->tailColor = randomColor();
 
       m_kreatures.push_back(std::move(kreature));
     }
@@ -119,21 +123,16 @@ namespace kkd {
     auto child = std::make_unique<Kreature>(newPosition, rotation, gf::Vector2f(xTarget, yTarget));
 
     // Body fusion
-    float fusionFactor = 0.0f;
-    if (colorCompare((*closerKreature)->bodyColor, currentKreature->bodyColor) == 1) {
-      fusionFactor = UpperFusionFactor;
-    }
-    else {
-      fusionFactor = LowerFusionFactor;
-    }
+    child->bodyColor = fusionBodyPart(currentKreature->bodyColor, (*closerKreature)->bodyColor);
 
-    float rand = gRandom().computeUniformFloat(0.0f, 1.0f);
-    if (rand < fusionFactor) {
-      child->bodyColor = (*closerKreature)->bodyColor;
-    }
-    else if (rand >= FumbleMutation) {
-      child->bodyColor = randomColor();
-    }
+    // Body head
+    child->headColor = fusionBodyPart(currentKreature->headColor, (*closerKreature)->headColor);
+
+    // Body tail
+    child->tailColor = fusionBodyPart(currentKreature->tailColor, (*closerKreature)->tailColor);
+
+    // Body limbs
+    child->limbsColor = fusionBodyPart(currentKreature->limbsColor, (*closerKreature)->limbsColor);
 
     --currentKreature->ageLevel;
 
@@ -196,12 +195,57 @@ namespace kkd {
     for (unsigned i = 0; i < m_kreatures.size(); ++i) {
       auto &kreature = m_kreatures[i];
 
-      gf::RectangleShape rect({ 100.0f, 50.0f });
-      rect.setColor(getKreatureColor(kreature->bodyColor));
-      rect.setPosition(kreature->position);
-      rect.setRotation(kreature->orientation);
-      rect.setAnchor(gf::Anchor::Center);
-      rect.draw(target, states);
+      gf::RectangleShape body({ 100.0f, 50.0f });
+      body.setColor(getKreatureColor(kreature->bodyColor));
+      body.setPosition(kreature->position);
+      body.setRotation(kreature->orientation);
+      body.setAnchor(gf::Anchor::Center);
+
+      gf::Matrix3f bodyMatrix = body.getTransform();
+
+      gf::RectangleShape head({ 25.0f, 25.0f });
+      head.setAnchor(gf::Anchor::CenterLeft);
+      head.setColor(getKreatureColor(kreature->headColor));
+      head.setPosition(gf::transform(bodyMatrix, {100.0f, 25.0f}));
+      head.setRotation(kreature->orientation);
+
+      gf::RectangleShape armLeft({50.0f, 25.0f});
+      armLeft.setAnchor(gf::Anchor::BottomCenter);
+      armLeft.setColor(getKreatureColor(kreature->limbsColor));
+      armLeft.setPosition(gf::transform(bodyMatrix, {85.0f, 0.0f}));
+      armLeft.setRotation(kreature->orientation);
+
+      gf::RectangleShape armRight({50.0f, 25.0f});
+      armRight.setAnchor(gf::Anchor::TopCenter);
+      armRight.setColor(getKreatureColor(kreature->limbsColor));
+      armRight.setPosition(gf::transform(bodyMatrix, {85.0f, 50.0f}));
+      armRight.setRotation(kreature->orientation);
+
+      gf::RectangleShape legLeft({50.0f, 25.0f});
+      legLeft.setAnchor(gf::Anchor::BottomCenter);
+      legLeft.setColor(getKreatureColor(kreature->limbsColor));
+      legLeft.setPosition(gf::transform(bodyMatrix, {15.0f, 0.0f}));
+      legLeft.setRotation(kreature->orientation);
+
+      gf::RectangleShape legRight({50.0f, 25.0f});
+      legRight.setAnchor(gf::Anchor::TopCenter);
+      legRight.setColor(getKreatureColor(kreature->limbsColor));
+      legRight.setPosition(gf::transform(bodyMatrix, {15.0f, 50.0f}));
+      legRight.setRotation(kreature->orientation);
+
+      gf::RectangleShape tail({75.0f, 25.0f});
+      tail.setAnchor(gf::Anchor::CenterRight);
+      tail.setColor(getKreatureColor(kreature->tailColor));
+      tail.setPosition(gf::transform(bodyMatrix, {0.0f, 25.0f}));
+      tail.setRotation(kreature->orientation);
+
+      armLeft.draw(target, states);
+      armRight.draw(target, states);
+      legLeft.draw(target, states);
+      legRight.draw(target, states);
+      tail.draw(target, states);
+      head.draw(target, states);
+      body.draw(target, states);
     }
   }
 
@@ -268,6 +312,26 @@ namespace kkd {
     }
 
     return 0;
+  }
+
+  KreatureContainer::ColorName KreatureContainer::fusionBodyPart(KreatureContainer::ColorName currentColor, KreatureContainer::ColorName otherColor) {
+    float fusionFactor = 0.0f;
+    if (colorCompare(currentColor, otherColor) == 1) {
+      fusionFactor = UpperFusionFactor;
+    }
+    else {
+      fusionFactor = LowerFusionFactor;
+    }
+
+    float rand = gRandom().computeUniformFloat(0.0f, 1.0f);
+    if (rand < fusionFactor) {
+      return otherColor;
+    }
+    if (rand >= FumbleMutation) {
+      return randomColor();
+    }
+
+    return currentColor;
   }
 
 }
