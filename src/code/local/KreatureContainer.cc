@@ -22,6 +22,7 @@
 #include <gf/Math.h>
 #include <gf/Shapes.h>
 
+#include "Messages.h"
 #include "Singletons.h"
 
 namespace kkd {
@@ -105,6 +106,11 @@ namespace kkd {
         m_kreatures[i]->moveSequence.restart();
       }
     }
+
+    KrokodilePosition message;
+    message.position = m_kreatures[0].position;
+    message.angle = m_kreatures[0].orientation;
+    gMessageManager().sendMessage(&message);
   }
 
   void KreatureContainer::render(gf::RenderTarget &target, const gf::RenderStates &states) {
