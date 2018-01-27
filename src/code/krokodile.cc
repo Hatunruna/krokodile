@@ -22,6 +22,7 @@
 #include <gf/Clock.h>
 #include <gf/Color.h>
 #include <gf/Controls.h>
+#include <gf/Coordinates.h>
 #include <gf/EntityContainer.h>
 #include <gf/Event.h>
 #include <gf/RenderWindow.h>
@@ -224,12 +225,17 @@ int main() {
     } else {
       renderer.setView(hudView);
 
+      gf::Coordinates coords(renderer);
+      gf::Vector2f screenCenter = coords.getCenter();
+
       gf::Text timeText("Time : " + std::to_string((int)endTime) + " seconds", kkd::gResourceManager().getFont("blkchcry.ttf"), 100);
       timeText.setOutlineColor(gf::Color::Black);
       timeText.setOutlineThickness(2.0f);
       timeText.setColor(gf::Color::White);
-      timeText.setPosition(ScreenSize / 2);
+      timeText.setPosition(screenCenter);
       timeText.setAnchor(gf::Anchor::Center);
+      timeText.setParagraphWidth(2000.0f);
+      timeText.setAlignment(gf::Alignment::Center);
 
       gf::Text genText("Generations : " + std::to_string(nbGen), kkd::gResourceManager().getFont("blkchcry.ttf"), 100);
       genText.setOutlineColor(gf::Color::Black);
