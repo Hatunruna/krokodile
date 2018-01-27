@@ -15,6 +15,7 @@ namespace kkd {
 
     void setGenLevel(int gen);
     void setFoodLevel(float level);
+    void setWidth(float width);
   private:
     gf::Font &m_font;
     int m_genNumber;

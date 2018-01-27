@@ -133,6 +133,10 @@ int main() {
     while (window.pollEvent(event)) {
       actions.processEvent(event);
       views.processEvent(event);
+
+      if (event.type == gf::EventType::Resized) {
+        hud.setWidth((float)event.size.width);
+      }
     }
 
     if (closeWindowAction.isActive()) {

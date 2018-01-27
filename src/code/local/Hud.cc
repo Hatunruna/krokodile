@@ -53,4 +53,8 @@ namespace kkd {
   void Hud::setFoodLevel(float level) {
     m_foodLevel = level;
   }
+
+  void Hud::setWidth(float width) {
+    m_screenWidth = width;
+  }
 }
