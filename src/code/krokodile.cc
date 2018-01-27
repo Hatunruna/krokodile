@@ -21,6 +21,7 @@
 #include <gf/Action.h>
 #include <gf/Clock.h>
 #include <gf/Color.h>
+#include <gf/Controls.h>
 #include <gf/EntityContainer.h>
 #include <gf/Event.h>
 #include <gf/Shapes.h>
@@ -28,6 +29,9 @@
 #include <gf/ViewContainer.h>
 #include <gf/Views.h>
 #include <gf/Window.h>
+
+#include <cstdio>
+#include <iostream>
 
 #include "config.h"
 #include "local/Hud.h"
@@ -114,6 +118,13 @@ int main() {
   fusionAction.addScancodeKeyControl(gf::Scancode::Space);
   actions.addAction(fusionAction);
 
+  //Konami
+  gf::KonamiKeyboardControl konami;
+
+  gf::Action easterEgg("Easter egg");
+  easterEgg.addControl(konami);
+  easterEgg.setInstantaneous();
+
   // entities
   gf::EntityContainer mainEntities;
 
@@ -141,6 +152,7 @@ int main() {
       if (event.type == gf::EventType::Resized) {
         hud.setWidth((float)event.size.width);
       }
+      easterEgg.processEvent(event);
     }
 
     if (closeWindowAction.isActive()) {
@@ -170,6 +182,12 @@ int main() {
       kreatures.fusionDNA();
     }
 
+    if (easterEgg.isActive()) {
+      std::cout << "###############\n";
+      std::cout << "# Easter egg! #\n";
+      std::cout << "###############\n";
+    }
+
     // 2. update
     gf::Time time = clock.restart();
     mainEntities.update(time);
@@ -186,6 +204,7 @@ int main() {
 
     renderer.display();
     actions.reset();
+    easterEgg.reset();
   }
   return 0;
 }
