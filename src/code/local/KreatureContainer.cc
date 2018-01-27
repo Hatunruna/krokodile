@@ -52,8 +52,8 @@ namespace kkd {
 
   KreatureContainer::KreatureContainer() {
     for (int i = 0; i < SpawnLimit; ++i) {
-      float x = gRandom().computeUniformFloat(-50.0f, 50.0f);
-      float y = gRandom().computeUniformFloat(-50.0f, 50.0f);
+      float x = gRandom().computeUniformFloat(-500.0f, 500.0f);
+      float y = gRandom().computeUniformFloat(-500.0f, 500.0f);
 
       Kreature kreature;
       kreature.position = { x, y };
@@ -91,7 +91,7 @@ namespace kkd {
 
   void KreatureContainer::render(gf::RenderTarget &target, const gf::RenderStates &states) {
     for (auto &kreature: m_kreatures) {
-      gf::RectangleShape rect({ 10.0f, 5.0f });
+      gf::RectangleShape rect({ 100.0f, 50.0f });
       rect.setColor(getKreaturColor(kreature.bodyColor));
       rect.setPosition(kreature.position);
       rect.setRotation(kreature.orientation);

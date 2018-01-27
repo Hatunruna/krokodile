@@ -38,7 +38,7 @@ namespace kkd {
   private:
     static const constexpr int MaxAge = 5;
     static const constexpr int SpawnLimit = 5;
-    static const constexpr float ForwardVelocity = 20.0f;
+    static const constexpr float ForwardVelocity = 200.0f;
     static const constexpr float SideVelocity = 2.0f;
 
   private:
