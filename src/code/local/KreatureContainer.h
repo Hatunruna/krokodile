@@ -46,6 +46,9 @@ namespace kkd {
     static const constexpr float activityRotationTime = 1.0f;
     static const constexpr float AiMalusVelocity = 0.80f;
 
+    static constexpr float MaxBound = 1500.0f;
+    static constexpr float MinBound = - MaxBound;
+
   private:
     struct Kreature {
       Kreature(gf::Vector2f kreaPosition, float kreaRotation, gf::Vector2f kreaTarget)

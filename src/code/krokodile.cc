@@ -30,6 +30,7 @@
 
 #include "config.h"
 #include "local/KreatureContainer.h"
+#include "local/Map.h"
 #include "local/Messages.h"
 #include "local/Singletons.h"
 
@@ -105,6 +106,10 @@ int main() {
 
   // entities
   gf::EntityContainer mainEntities;
+
+  kkd::Map map;
+  mainEntities.addEntity(map);
+
   kkd::KreatureContainer kreatures;
   mainEntities.addEntity(kreatures);
 

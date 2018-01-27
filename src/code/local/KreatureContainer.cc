@@ -53,11 +53,11 @@ namespace kkd {
   KreatureContainer::KreatureContainer() {
     for (int i = 0; i < SpawnLimit; ++i) {
       // Get the initial value
-      float x = gRandom().computeUniformFloat(-500.0f, 500.0f);
-      float y = gRandom().computeUniformFloat(-500.0f, 500.0f);
+      float x = gRandom().computeUniformFloat(MinBound, MaxBound);
+      float y = gRandom().computeUniformFloat(MinBound, MaxBound);
 
-      float xTarget = gRandom().computeUniformFloat(-50.0f, 50.0f);
-      float yTarget = gRandom().computeUniformFloat(-50.0f, 50.0f);
+      float xTarget = gRandom().computeUniformFloat(MinBound, MaxBound);
+      float yTarget = gRandom().computeUniformFloat(MinBound, MaxBound);
 
       float rotation = gRandom().computeUniformFloat(0.0f, 2 * gf::Pi);
 
@@ -91,8 +91,8 @@ namespace kkd {
       gf::ActivityStatus status = m_kreatures[i]->moveSequence.run(time);
 
       if (status == gf::ActivityStatus::Finished) {
-        float xTarget = gRandom().computeUniformFloat(-50.0f, 50.0f);
-        float yTarget = gRandom().computeUniformFloat(-50.0f, 50.0f);
+        float xTarget = gRandom().computeUniformFloat(MinBound, MaxBound);
+        float yTarget = gRandom().computeUniformFloat(MinBound, MaxBound);
         gf::Vector2f target = { xTarget, yTarget };
 
         // Reset the activities
