@@ -41,6 +41,11 @@ namespace kkd {
     };
 
   private:
+    struct Part {
+      int offset = 0;
+      ColorName color;
+    };
+
     struct Kreature {
       Kreature(gf::Vector2f kreaPosition, float kreaRotation, gf::Vector2f kreaTarget)
       : position(kreaPosition)
@@ -54,14 +59,10 @@ namespace kkd {
       int ageLevel = MaxAge;
       float foodLevel = 0.0f;
 
-      int headSprite;
-      ColorName headColor;
-      int bodySprite;
-      ColorName bodyColor;
-      int limbsSprite;
-      ColorName limbsColor;
-      int tailSprite;
-      ColorName tailColor;
+      Part head;
+      Part body;
+      Part limbs;
+      Part tail;
 
       gf::Vector2f position;
       float orientation;
@@ -84,14 +85,14 @@ namespace kkd {
     void removeDeadKreature();
     void checkComplete();
 
-    void resetActivities(std::unique_ptr<Kreature> &kreature);
+    void resetActivities(Kreature& kreature);
 
     virtual void update(gf::Time time) override;
     virtual void render(gf::RenderTarget &target, const gf::RenderStates &states) override;
 
   private:
     static constexpr int MaxAge = 5;
-    static constexpr int SpawnLimit = 50;
+    static constexpr int SpawnLimit = 25;
     static constexpr float ForwardVelocity = 200.0f;
     static constexpr float SideVelocity = 2.0f;
     static constexpr float activityRotationTime = 1.0f;
@@ -109,13 +110,21 @@ namespace kkd {
     static constexpr float LimitLengthFusion = 150.0f;
 
   private:
-    std::vector< std::unique_ptr<Kreature> >::iterator getCloserKreature();
+    std::unique_ptr<Kreature>& getPlayerPtr();
+    Kreature& getPlayer();
+    const Kreature& getPlayer() const;
+    std::unique_ptr<Kreature>& getCloserKreature();
     int colorCompare(ColorName color1, ColorName color2);
-    ColorName fusionBodyPart(ColorName currentColor, ColorName otherColor);
+    Part fusionPart(Part currentPart, Part otherPart);
     void addFoodLevel(float consumption);
 
   private:
     std::vector< std::unique_ptr<Kreature> > m_kreatures;
+    gf::Texture& m_kreatureHeadTexture;
+    gf::Texture& m_kreaturePostLegTexture;
+    gf::Texture& m_kreatureAnteLegTexture;
+    gf::Texture& m_kreatureBodyTexture;
+    gf::Texture& m_kreatureTailTexture;
   };
 } /* kkd */
 

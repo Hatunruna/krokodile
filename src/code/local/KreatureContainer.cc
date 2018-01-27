@@ -22,25 +22,27 @@
 #include <gf/Log.h>
 #include <gf/Math.h>
 #include <gf/Shapes.h>
+#include <gf/Sprite.h>
 #include <gf/Transform.h>
 
 #include "Messages.h"
 
 namespace kkd {
+  static constexpr int TotalAnimal = 2;
 
   namespace {
     gf::Color4f getKreatureColor(KreatureContainer::ColorName ith) {
       switch (ith) {
         case KreatureContainer::Azure:
-          return gf::Color::darker(gf::Color::Azure, 0.25);
+          return gf::Color::Azure;
         case KreatureContainer::Green:
-          return gf::Color::darker(gf::Color::Green, 0.25);
+          return gf::Color::Green;
         case KreatureContainer::Yellow:
-          return gf::Color::darker(gf::Color::Yellow, 0.25);
+          return gf::Color::lighter(gf::Color::Yellow, 0.25f);
         case KreatureContainer::Red:
-          return gf::Color::darker(gf::Color::Red, 0.25);
+          return gf::Color::lighter(gf::Color::Red, 0.25f);
         case KreatureContainer::Magenta:
-          return gf::Color::darker(gf::Color::Magenta, 0.25);
+          return gf::Color::lighter(gf::Color::Magenta, 0.25f);
         default:
           break;
       }
@@ -53,9 +55,18 @@ namespace kkd {
       return static_cast<KreatureContainer::ColorName>(gRandom().computeUniformInteger(0, 4));
     }
 
+    int randomOffset() {
+      return gRandom().computeUniformInteger(0, TotalAnimal - 1);
+    }
+
   }
 
-  KreatureContainer::KreatureContainer() {
+  KreatureContainer::KreatureContainer()
+  : m_kreatureHeadTexture(gResourceManager().getTexture("kreature_head.png"))
+  , m_kreaturePostLegTexture(gResourceManager().getTexture("kreature_postleg.png"))
+  , m_kreatureAnteLegTexture(gResourceManager().getTexture("kreature_anteleg.png"))
+  , m_kreatureBodyTexture(gResourceManager().getTexture("kreature_body.png"))
+  , m_kreatureTailTexture(gResourceManager().getTexture("kreature_tail.png")) {
     for (int i = 0; i < SpawnLimit; ++i) {
       // Get the initial value
       float x = gRandom().computeUniformFloat(MinBound, MaxBound);
@@ -67,32 +78,36 @@ namespace kkd {
       float rotation = gRandom().computeUniformFloat(0.0f, 2 * gf::Pi);
 
       auto kreature = std::make_unique<Kreature>(gf::Vector2f(x, y), rotation, gf::Vector2f(xTarget, yTarget));
-      kreature->bodyColor = randomColor();
-      kreature->headColor = randomColor();
-      kreature->limbsColor = randomColor();
-      kreature->tailColor = randomColor();
+      kreature->body.color = randomColor();
+      kreature->body.offset = randomOffset();
+      kreature->head.color = randomColor();
+      kreature->head.offset = randomOffset();
+      kreature->limbs.color = randomColor();
+      kreature->limbs.offset = randomOffset();
+      kreature->tail.color = randomColor();
+      kreature->tail.offset = randomOffset();
 
       m_kreatures.push_back(std::move(kreature));
     }
   }
 
   void KreatureContainer::playerForwardMove(int direction) {
-    m_kreatures[0]->forwardMove = direction;
+    getPlayer().forwardMove = direction;
   }
 
   void KreatureContainer::playerSidedMove(int direction) {
-    m_kreatures[0]->sideMove = direction;
+    getPlayer().sideMove = direction;
   }
 
   void KreatureContainer::swapKreature() {
     assert(m_kreatures.size() >= 2);
 
-    auto newKreature = getCloserKreature();
+    auto& newKreature = getCloserKreature();
 
     // Reset the activity for the old kreature
-    resetActivities(*(m_kreatures.begin()));
+    resetActivities(getPlayer());
 
-    std::iter_swap(m_kreatures.begin(), newKreature);
+    std::swap(getPlayerPtr(), newKreature);
 
     checkComplete();
   }
@@ -100,11 +115,11 @@ namespace kkd {
   void KreatureContainer::fusionDNA() {
     assert(m_kreatures.size() >= 2);
 
-    auto closerKreature = getCloserKreature();
-    auto &currentKreature = m_kreatures[0];
+    auto& closerKreature = getCloserKreature();
+    auto& currentKreature = getPlayerPtr();
 
     // If the kreatures is too for
-    if (gf::euclideanDistance((*closerKreature)->position, currentKreature->position) > LimitLengthFusion || currentKreature->ageLevel <= 0 || currentKreature->foodLevel < FusionFoodConsumption) {
+    if (gf::euclideanDistance(closerKreature->position, currentKreature->position) > LimitLengthFusion || currentKreature->ageLevel <= 0 || currentKreature->foodLevel < FusionFoodConsumption) {
       return;
     }
 
@@ -117,16 +132,16 @@ namespace kkd {
     auto child = std::make_unique<Kreature>(newPosition, rotation, gf::Vector2f(xTarget, yTarget));
 
     // Body fusion
-    child->bodyColor = fusionBodyPart(currentKreature->bodyColor, (*closerKreature)->bodyColor);
+    child->body = fusionPart(currentKreature->body, closerKreature->body);
 
     // Body head
-    child->headColor = fusionBodyPart(currentKreature->headColor, (*closerKreature)->headColor);
+    child->head = fusionPart(currentKreature->head, closerKreature->head);
 
     // Body tail
-    child->tailColor = fusionBodyPart(currentKreature->tailColor, (*closerKreature)->tailColor);
+    child->tail = fusionPart(currentKreature->tail, closerKreature->tail);
 
     // Body limbs
-    child->limbsColor = fusionBodyPart(currentKreature->limbsColor, (*closerKreature)->limbsColor);
+    child->limbs = fusionPart(currentKreature->limbs, closerKreature->limbs);
 
 
     addFoodLevel(-FusionFoodConsumption);
@@ -160,34 +175,35 @@ namespace kkd {
     }
   }
 
-  void KreatureContainer::resetActivities(std::unique_ptr<Kreature> &kreature) {
+  void KreatureContainer::resetActivities(Kreature& kreature) {
     float xTarget = gRandom().computeUniformFloat(MinBound, MaxBound);
     float yTarget = gRandom().computeUniformFloat(MinBound, MaxBound);
     gf::Vector2f target = { xTarget, yTarget };
 
     // Reset the activities
-    kreature->rotationActivity.setOrigin(kreature->orientation);
-    kreature->rotationActivity.setTarget(gf::angle(target - kreature->position));
+    kreature.rotationActivity.setOrigin(kreature.orientation);
+    kreature.rotationActivity.setTarget(gf::angle(target - kreature.position));
 
-    kreature->moveActivity.setOrigin(kreature->position);
-    kreature->moveActivity.setTarget(target);
-    kreature->moveActivity.setDuration(gf::seconds(gf::euclideanDistance(kreature->position, target) / (ForwardVelocity * AiMalusVelocity)));
+    kreature.moveActivity.setOrigin(kreature.position);
+    kreature.moveActivity.setTarget(target);
+    kreature.moveActivity.setDuration(gf::seconds(gf::euclideanDistance(kreature.position, target) / (ForwardVelocity * AiMalusVelocity)));
 
-    kreature->moveSequence.restart();
+    kreature.moveSequence.restart();
   }
 
   void KreatureContainer::update(gf::Time time) {
     assert(!m_kreatures.empty());
 
     // Update the player
-    Kreature& player = *m_kreatures[0];
+    Kreature& player = getPlayer();
 
     // Update the orientation
-    player.orientation += SideVelocity * m_kreatures[0]->sideMove * time.asSeconds();
+    player.orientation += SideVelocity * player.sideMove * time.asSeconds();
+    player.orientation = std::remainder(player.orientation, 2 * gf::Pi);
     player.sideMove = 0;
 
     // Update the position
-    player.position += gf::unit(m_kreatures[0]->orientation) * ForwardVelocity * m_kreatures[0]->forwardMove * time.asSeconds();
+    player.position += gf::unit(player.orientation) * ForwardVelocity * player.forwardMove * time.asSeconds();
     player.forwardMove = 0;
 
     player.position = gf::clamp(player.position, MinBound, MaxBound);
@@ -197,13 +213,13 @@ namespace kkd {
       gf::ActivityStatus status = m_kreatures[i]->moveSequence.run(time);
 
       if (status == gf::ActivityStatus::Finished) {
-        resetActivities(m_kreatures[i]);
+        resetActivities(*m_kreatures[i]);
       }
     }
 
     KrokodilePosition message;
-    message.position = m_kreatures[0]->position;
-    message.angle = m_kreatures[0]->orientation;
+    message.position = player.position;
+    message.angle = player.orientation;
     gMessageManager().sendMessage(&message);
 
     // Update the food level
@@ -211,8 +227,8 @@ namespace kkd {
 
     // Send stats to HUD
     KrokodileStats stats;
-    stats.foodLevel = m_kreatures[0]->foodLevel;
-    stats.ageLevel = m_kreatures[0]->ageLevel;
+    stats.foodLevel = player.foodLevel;
+    stats.ageLevel = player.ageLevel;
     gMessageManager().sendMessage(&stats);
   }
 
@@ -220,8 +236,12 @@ namespace kkd {
     for (unsigned i = 0; i < m_kreatures.size(); ++i) {
       auto &kreature = m_kreatures[i];
 
-      gf::RectangleShape body({ 100.0f, 50.0f });
-      body.setColor(getKreatureColor(kreature->bodyColor));
+      static constexpr gf::Vector2f BodySpriteSize = { 256.0f, 256.0f };
+      static constexpr gf::Vector2f BodyWorldSize = { 128.0f, 128.0f };
+
+      gf::Sprite body(m_kreatureBodyTexture, gf::RectF(kreature->body.offset * gf::Vector2f(1.0f / TotalAnimal, 0.0f), { 1.0f / TotalAnimal, 1.0f }));
+      body.setScale(BodyWorldSize / BodySpriteSize);
+      body.setColor(getKreatureColor(kreature->body.color));
       body.setPosition(kreature->position);
       body.setRotation(kreature->orientation);
 
@@ -229,60 +249,86 @@ namespace kkd {
 
       body.setAnchor(gf::Anchor::Center);
 
-      gf::RectangleShape head({ 25.0f, 25.0f });
+      static constexpr gf::Vector2f HeadSpriteSize = { 256.0f, 256.0f };
+      static constexpr gf::Vector2f HeadWorldSize = { 128.0f, 128.0f };
+      // Not work !
+      // static constexpr gf::Vector2f HeadScale = HeadWorldSize / HeadSpriteSize;
+
+      gf::Sprite head(m_kreatureHeadTexture, gf::RectF(kreature->head.offset * gf::Vector2f(1.0f / TotalAnimal, 0.0f), { 1.0f / TotalAnimal, 1.0f }));
+      head.setScale(HeadWorldSize.x / HeadSpriteSize);
       head.setAnchor(gf::Anchor::CenterLeft);
-      head.setColor(getKreatureColor(kreature->headColor));
-      head.setPosition(gf::transform(bodyMatrix, {50.0f, 0.0f}));
+      head.setColor(getKreatureColor(kreature->head.color));
+      head.setPosition(gf::transform(bodyMatrix, {128.0f, 0.0f}));
       head.setRotation(kreature->orientation);
-
-      gf::RectangleShape armLeft({50.0f, 25.0f});
-      armLeft.setAnchor(gf::Anchor::BottomCenter);
-      armLeft.setColor(getKreatureColor(kreature->limbsColor));
-      armLeft.setPosition(gf::transform(bodyMatrix, {35.0f, -25.0f}));
-      armLeft.setRotation(kreature->orientation);
-
-      gf::RectangleShape armRight({50.0f, 25.0f});
-      armRight.setAnchor(gf::Anchor::TopCenter);
-      armRight.setColor(getKreatureColor(kreature->limbsColor));
-      armRight.setPosition(gf::transform(bodyMatrix, {35.0f, 25.0f}));
-      armRight.setRotation(kreature->orientation);
-
-      gf::RectangleShape legLeft({50.0f, 25.0f});
-      legLeft.setAnchor(gf::Anchor::BottomCenter);
-      legLeft.setColor(getKreatureColor(kreature->limbsColor));
-      legLeft.setPosition(gf::transform(bodyMatrix, {-35.0f, -25.0f}));
-      legLeft.setRotation(kreature->orientation);
-
-      gf::RectangleShape legRight({50.0f, 25.0f});
-      legRight.setAnchor(gf::Anchor::TopCenter);
-      legRight.setColor(getKreatureColor(kreature->limbsColor));
-      legRight.setPosition(gf::transform(bodyMatrix, {-35.0f, 25.0f}));
-      legRight.setRotation(kreature->orientation);
-
-      gf::RectangleShape tail({75.0f, 25.0f});
-      tail.setAnchor(gf::Anchor::CenterRight);
-      tail.setColor(getKreatureColor(kreature->tailColor));
-      tail.setPosition(gf::transform(bodyMatrix, {-50.0f, 0.0f}));
-      tail.setRotation(kreature->orientation);
-
-      armLeft.draw(target, states);
-      armRight.draw(target, states);
-      legLeft.draw(target, states);
-      legRight.draw(target, states);
-      tail.draw(target, states);
       head.draw(target, states);
+
+      static constexpr gf::Vector2f AnteLegSpriteSize = { 128.0f, 128.0f };
+      static constexpr gf::Vector2f AnteLegWorldSize = { 64.0f, 64.0f };
+
+      gf::Sprite anteLeg(m_kreatureAnteLegTexture, gf::RectF(kreature->limbs.offset * gf::Vector2f(1.0f / TotalAnimal, 0.0f), { 1.0f / TotalAnimal, 1.0f }));
+      anteLeg.setScale(AnteLegWorldSize / AnteLegSpriteSize);
+      anteLeg.setAnchor(gf::Anchor::BottomCenter);
+      anteLeg.setColor(getKreatureColor(kreature->limbs.color));
+      anteLeg.setPosition(gf::transform(bodyMatrix, {90.0f, -50.0f}));
+      anteLeg.setRotation(kreature->orientation);
+      anteLeg.draw(target, states);
+      anteLeg.scale({ 1.0f, -1.0f });
+      anteLeg.setPosition(gf::transform(bodyMatrix, {90.0f, 50.0f}));
+      anteLeg.draw(target, states);
+
+      static constexpr gf::Vector2f PostLegSpriteSize = { 128.0f, 128.0f };
+      static constexpr gf::Vector2f PostLegWorldSize = { 64.0f, 64.0f };
+
+      gf::Sprite postLeg(m_kreaturePostLegTexture, gf::RectF(kreature->limbs.offset * gf::Vector2f(1.0f / TotalAnimal, 0.0f), { 1.0f / TotalAnimal, 1.0f }));
+      postLeg.setScale(PostLegWorldSize / PostLegSpriteSize);
+      postLeg.setAnchor(gf::Anchor::BottomCenter);
+      postLeg.setColor(getKreatureColor(kreature->limbs.color));
+      postLeg.setPosition(gf::transform(bodyMatrix, {-70.0f, -40.0f}));
+      postLeg.setRotation(kreature->orientation);
+      postLeg.draw(target, states);
+      postLeg.setScale({ PostLegWorldSize.x / PostLegSpriteSize.x, -PostLegWorldSize.y / PostLegSpriteSize.y });
+      postLeg.setPosition(gf::transform(bodyMatrix, {-90.0f, 40.0f}));
+      postLeg.draw(target, states);
+
+      static constexpr gf::Vector2f TailSpriteSize = { 256.0f, 256.0f };
+      static constexpr gf::Vector2f TailWorldSize = { 128.0f, 128.0f };
+
+      gf::Sprite tail(m_kreatureTailTexture, gf::RectF(kreature->tail.offset * gf::Vector2f(1.0f / TotalAnimal, 0.0f), { 1.0f / TotalAnimal, 1.0f }));
+      tail.setScale(TailWorldSize / TailSpriteSize);
+      tail.setAnchor(gf::Anchor::CenterRight);
+      tail.setColor(getKreatureColor(kreature->tail.color));
+      tail.setPosition(gf::transform(bodyMatrix, {-128.0f, 0.0f}));
+      tail.setRotation(kreature->orientation);
+      tail.draw(target, states);
+
+      // to print over
       body.draw(target, states);
     }
   }
 
-  std::vector< std::unique_ptr<KreatureContainer::Kreature> >::iterator KreatureContainer::getCloserKreature() {
+  std::unique_ptr<KreatureContainer::Kreature>& KreatureContainer::getPlayerPtr() {
+    assert(!m_kreatures.empty());
+    return m_kreatures.front();
+  }
+
+  KreatureContainer::Kreature& KreatureContainer::getPlayer() {
+    assert(!m_kreatures.empty());
+    return *m_kreatures.front();
+  }
+
+  const KreatureContainer::Kreature& KreatureContainer::getPlayer() const {
+    assert(!m_kreatures.empty());
+    return *m_kreatures.front();
+  }
+
+  std::unique_ptr<KreatureContainer::Kreature>& KreatureContainer::getCloserKreature() {
     auto newKreature = std::min_element(m_kreatures.begin() + 1, m_kreatures.end(), [this](auto &krea1, auto &krea2){
       float length1 = gf::euclideanDistance(m_kreatures[0]->position, krea1->position);
       float length2 = gf::euclideanDistance(m_kreatures[0]->position, krea2->position);
       return length1 < length2;
     });
 
-    return newKreature;
+    return *newKreature;
   }
 
   int KreatureContainer::colorCompare(ColorName color1, ColorName color2) {
@@ -340,9 +386,11 @@ namespace kkd {
     return 0;
   }
 
-  KreatureContainer::ColorName KreatureContainer::fusionBodyPart(KreatureContainer::ColorName currentColor, KreatureContainer::ColorName otherColor) {
+  KreatureContainer::Part KreatureContainer::fusionPart(KreatureContainer::Part currentPart, KreatureContainer::Part otherPart) {
+    Part newPart = currentPart;
+
     float fusionFactor = 0.0f;
-    if (colorCompare(currentColor, otherColor) == 1) {
+    if (colorCompare(currentPart.color, otherPart.color) == 1) {
       fusionFactor = UpperFusionFactor;
     }
     else {
@@ -351,24 +399,21 @@ namespace kkd {
 
     float rand = gRandom().computeUniformFloat(0.0f, 1.0f);
     if (rand < fusionFactor) {
-      return otherColor;
+      newPart.color = otherPart.color;
+      newPart.offset = otherPart.offset;
     }
-    if (rand >= FumbleMutation) {
-      return randomColor();
+    else if (rand >= FumbleMutation) {
+      newPart.color = randomColor();
+      newPart.offset = randomOffset();
     }
 
-    return currentColor;
+    return newPart;
   }
 
   void KreatureContainer::addFoodLevel(float consumption) {
-    m_kreatures[0]->foodLevel += consumption;
-
-    if (m_kreatures[0]->foodLevel > FoodLevelMax) {
-      m_kreatures[0]->foodLevel = FoodLevelMax;
-    }
-    else if (m_kreatures[0]->foodLevel < 0.0f ){
-      m_kreatures[0]->foodLevel = 0.0f;
-    }
+    auto& player = getPlayer();
+    player.foodLevel += consumption;
+    player.foodLevel = gf::clamp(player.foodLevel, 0.0f, FoodLevelMax);
   }
 
 }

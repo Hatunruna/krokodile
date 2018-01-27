@@ -21,6 +21,7 @@
 #include <gf/Action.h>
 #include <gf/Clock.h>
 #include <gf/Color.h>
+#include <gf/Controls.h>
 #include <gf/EntityContainer.h>
 #include <gf/Event.h>
 #include <gf/RenderWindow.h>
@@ -29,6 +30,8 @@
 #include <gf/ViewContainer.h>
 #include <gf/Views.h>
 #include <gf/Window.h>
+
+#include <iostream>
 
 #include "config.h"
 #include "local/Hud.h"
@@ -128,6 +131,13 @@ int main() {
   fusionAction.addScancodeKeyControl(gf::Scancode::Space);
   actions.addAction(fusionAction);
 
+  //Konami
+  gf::KonamiKeyboardControl konami;
+
+  gf::Action easterEgg("Easter egg");
+  easterEgg.addControl(konami);
+  easterEgg.setInstantaneous();
+
   // entities
   gf::EntityContainer mainEntities;
 
@@ -138,8 +148,9 @@ int main() {
   mainEntities.addEntity(kreatures);
 
   gf::EntityContainer hudEntities;
+
   // add entities to hudEntities
-  kkd::Hud hud((float)ScreenSize.width);
+  kkd::Hud hud;
   hudEntities.addEntity(hud);
 
   // game loop
@@ -152,9 +163,7 @@ int main() {
       actions.processEvent(event);
       views.processEvent(event);
 
-      if (event.type == gf::EventType::Resized) {
-        hud.setWidth((float)event.size.width);
-      }
+      easterEgg.processEvent(event);
     }
 
     if (closeWindowAction.isActive()) {
@@ -185,6 +194,14 @@ int main() {
       nbGen++;
     }
 
+    if (easterEgg.isActive()) {
+      //Do event or message
+      std::cout << "###############\n";
+      std::cout << "# Easter egg! #\n";
+      std::cout << "###############\n";
+    }
+
+    // 2. update
     gf::Time time = clock.restart();
     if (!isGameComplete) {
       // 2. update
@@ -237,6 +254,7 @@ int main() {
 
     renderer.display();
     actions.reset();
+    easterEgg.reset();
   }
   return 0;
 }
