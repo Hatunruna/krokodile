@@ -225,37 +225,17 @@ int main() {
       gf::Coordinates coords(renderer);
       gf::Vector2f screenCenter = coords.getCenter();
 
-      gf::Text timeText("Time : " + std::to_string((int)endTime) + " seconds", kkd::gResourceManager().getFont("blkchcry.ttf"), 100);
-      timeText.setOutlineColor(gf::Color::Black);
-      timeText.setOutlineThickness(2.0f);
-      timeText.setColor(gf::Color::White);
-      timeText.setPosition(screenCenter);
-      timeText.setAnchor(gf::Anchor::Center);
-      timeText.setParagraphWidth(2000.0f);
-      timeText.setAlignment(gf::Alignment::Center);
-
-      gf::Text genText("Generations : " + std::to_string(nbGen), kkd::gResourceManager().getFont("blkchcry.ttf"), 100);
-      genText.setOutlineColor(gf::Color::Black);
-      genText.setOutlineThickness(2.0f);
-      genText.setColor(gf::Color::White);
-      gf::Vector2f genTextPos = timeText.getPosition();
-      genTextPos.y -= timeText.getLocalBounds().height / 2;
-      genText.setPosition(genTextPos);
-      genText.setAnchor(gf::Anchor::BottomCenter);
-
       int finalScore = (int)((10000.0f / (nbGen * endTime + 1)) * 1000.0f);
-      gf::Text scoreText("Score : " + std::to_string(finalScore), kkd::gResourceManager().getFont("blkchcry.ttf"), 100);
-      scoreText.setOutlineColor(gf::Color::Black);
-      scoreText.setOutlineThickness(2.0f);
-      scoreText.setColor(gf::Color::White);
-      gf::Vector2f scoreTextPos = timeText.getPosition();
-      scoreTextPos.y += timeText.getLocalBounds().height / 2;
-      scoreText.setPosition(scoreTextPos);
-      scoreText.setAnchor(gf::Anchor::TopCenter);
+      gf::Text scoreTxt("Generations : " + std::to_string(nbGen) + "\nTime : " + std::to_string((int)endTime) + " seconds\nScore : " + std::to_string(finalScore), kkd::gResourceManager().getFont("blkchcry.ttf"), 100);
+      scoreTxt.setOutlineColor(gf::Color::Black);
+      scoreTxt.setOutlineThickness(2.0f);
+      scoreTxt.setColor(gf::Color::White);
+      scoreTxt.setPosition(screenCenter);
+      scoreTxt.setParagraphWidth(1000.0f);
+      scoreTxt.setAlignment(gf::Alignment::Center);
+      scoreTxt.setAnchor(gf::Anchor::Center);
 
-      renderer.draw(scoreText);
-      renderer.draw(genText);
-      renderer.draw(timeText);
+      renderer.draw(scoreTxt);
     }
 
     renderer.display();
