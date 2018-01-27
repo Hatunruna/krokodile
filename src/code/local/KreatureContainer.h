@@ -87,13 +87,14 @@ namespace kkd {
     virtual void render(gf::RenderTarget &target, const gf::RenderStates &states) override;
 
   private:
-    static const constexpr int MaxAge = 5;
-    static const constexpr int SpawnLimit = 50;
-    static const constexpr float ForwardVelocity = 200.0f;
-    static const constexpr float SideVelocity = 2.0f;
-    static const constexpr float activityRotationTime = 1.0f;
-    static const constexpr float AiMalusVelocity = 0.80f;
-    static const constexpr float FoodLevelMax = 100.0f;
+    static constexpr int MaxAge = 5;
+    static constexpr int SpawnLimit = 50;
+    static constexpr float ForwardVelocity = 200.0f;
+    static constexpr float SideVelocity = 2.0f;
+    static constexpr float activityRotationTime = 1.0f;
+    static constexpr float AiMalusVelocity = 0.80f;
+    static constexpr float FoodLevelMax = 100.0f;
+    static constexpr float FoodLevelSteps = 15.0f;
 
     static constexpr float MaxBound = 1500.0f;
     static constexpr float MinBound = - MaxBound;

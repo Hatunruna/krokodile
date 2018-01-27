@@ -178,8 +178,11 @@ namespace kkd {
     gMessageManager().sendMessage(&message);
 
     // Update the food level
-    m_kreatures[0]->foodLevel += 0.5f;
+    m_kreatures[0]->foodLevel += time.asSeconds() * FoodLevelSteps;
     if (m_kreatures[0]->foodLevel > FoodLevelMax) {
+      m_kreatures[0]->foodLevel = FoodLevelMax;
+    }
+    else if (m_kreatures[0]->foodLevel < 0.0f ){
       m_kreatures[0]->foodLevel = 0.0f;
     }
 
