@@ -54,13 +54,13 @@ namespace kkd {
       int ageLevel = MaxAge;
       float foodLevel = 0.0f;
 
-      int headSprite;
+      int headSprite = 0;
       ColorName headColor;
-      int bodySprite;
+      int bodySprite = 0;
       ColorName bodyColor;
-      int limbsSprite;
+      int limbsSprite = 0;
       ColorName limbsColor;
-      int tailSprite;
+      int tailSprite = 0;
       ColorName tailColor;
 
       gf::Vector2f position;
@@ -81,7 +81,7 @@ namespace kkd {
     void swapKreature();
     void fusionDNA();
 
-    void resetActivities(std::unique_ptr<Kreature> &kreature);
+    void resetActivities(Kreature& kreature);
 
     virtual void update(gf::Time time) override;
     virtual void render(gf::RenderTarget &target, const gf::RenderStates &states) override;
@@ -106,9 +106,12 @@ namespace kkd {
     static constexpr float LimitLengthFusion = 150.0f;
 
   private:
-    std::vector< std::unique_ptr<Kreature> >::iterator getCloserKreature();
+    std::unique_ptr<Kreature>& getPlayerPtr();
+    Kreature& getPlayer();
+    const Kreature& getPlayer() const;
+    std::unique_ptr<Kreature>& getCloserKreature();
     int colorCompare(ColorName color1, ColorName color2);
-    ColorName fusionBodyPart(ColorName currentColor, ColorName otherColor);
+    ColorName fusionPart(ColorName currentColor, ColorName otherColor);
     void addFoodLevel(float consumption);
 
   private:
