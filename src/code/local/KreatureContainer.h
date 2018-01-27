@@ -109,8 +109,8 @@ namespace kkd {
 
   private:
     std::vector< std::unique_ptr<Kreature> >::iterator getCloserKreature();
-
     int colorCompare(ColorName color1, ColorName color2);
+    ColorName fusionBodyPart(ColorName currentColor, ColorName otherColor);
 
   private:
     std::vector< std::unique_ptr<Kreature> > m_kreatures;
