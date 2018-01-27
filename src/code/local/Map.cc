@@ -28,7 +28,7 @@
 namespace kkd {
 
   Map::Map()
-  : m_texture(gResourceManager().getTexture("tileset.png"))
+  : m_texture(gResourceManager().getTexture("map.png"))
   , m_layer({ Size, Size })
   {
     m_layer.setTexture(m_texture);

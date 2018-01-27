@@ -113,6 +113,11 @@ namespace kkd {
 
   private:
     std::vector< std::unique_ptr<Kreature> > m_kreatures;
+    gf::Texture& m_kreatureHeadTexture;
+    gf::Texture& m_kreaturePostLegTexture;
+    gf::Texture& m_kreatureAnteLegTexture;
+    gf::Texture& m_kreatureBodyTexture;
+    gf::Texture& m_kreatureTailTexture;
   };
 } /* kkd */
 

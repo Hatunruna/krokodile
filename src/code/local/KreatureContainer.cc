@@ -22,6 +22,7 @@
 #include <gf/Log.h>
 #include <gf/Math.h>
 #include <gf/Shapes.h>
+#include <gf/Sprite.h>
 #include <gf/Transform.h>
 
 #include "Messages.h"
@@ -55,7 +56,12 @@ namespace kkd {
 
   }
 
-  KreatureContainer::KreatureContainer() {
+  KreatureContainer::KreatureContainer()
+  : m_kreatureHeadTexture(gResourceManager().getTexture("kreature_head.png"))
+  , m_kreaturePostLegTexture(gResourceManager().getTexture("kreature_postleg.png"))
+  , m_kreatureAnteLegTexture(gResourceManager().getTexture("kreature_anteleg.png"))
+  , m_kreatureBodyTexture(gResourceManager().getTexture("kreature_body.png"))
+  , m_kreatureTailTexture(gResourceManager().getTexture("kreature_tail.png")) {
     for (int i = 0; i < SpawnLimit; ++i) {
       // Get the initial value
       float x = gRandom().computeUniformFloat(MinBound, MaxBound);
@@ -194,7 +200,11 @@ namespace kkd {
     for (unsigned i = 0; i < m_kreatures.size(); ++i) {
       auto &kreature = m_kreatures[i];
 
-      gf::RectangleShape body({ 100.0f, 50.0f });
+      static constexpr gf::Vector2f BodySpriteSize = { 256.0f, 256.0f };
+      static constexpr gf::Vector2f BodyWorldSize = { 128.0f, 128.0f };
+
+      gf::Sprite body(m_kreatureBodyTexture);
+      body.setScale(BodyWorldSize / BodySpriteSize);
       body.setColor(getKreatureColor(kreature->bodyColor));
       body.setPosition(kreature->position);
       body.setRotation(kreature->orientation);
@@ -203,48 +213,60 @@ namespace kkd {
 
       body.setAnchor(gf::Anchor::Center);
 
-      gf::RectangleShape head({ 25.0f, 25.0f });
+
+      static constexpr gf::Vector2f HeadSpriteSize = { 256.0f, 256.0f };
+      static constexpr gf::Vector2f HeadWorldSize = { 128.0f, 128.0f };
+      // Not work !
+      // static constexpr gf::Vector2f HeadScale = HeadWorldSize / HeadSpriteSize;
+
+      gf::Sprite head(m_kreatureHeadTexture);
+      head.setScale(HeadWorldSize.x / HeadSpriteSize);
       head.setAnchor(gf::Anchor::CenterLeft);
       head.setColor(getKreatureColor(kreature->headColor));
-      head.setPosition(gf::transform(bodyMatrix, {50.0f, 0.0f}));
+      head.setPosition(gf::transform(bodyMatrix, {128.0f, 0.0f}));
       head.setRotation(kreature->orientation);
+      head.draw(target, states);
 
-      gf::RectangleShape armLeft({50.0f, 25.0f});
-      armLeft.setAnchor(gf::Anchor::BottomCenter);
-      armLeft.setColor(getKreatureColor(kreature->limbsColor));
-      armLeft.setPosition(gf::transform(bodyMatrix, {35.0f, -25.0f}));
-      armLeft.setRotation(kreature->orientation);
+      static constexpr gf::Vector2f AnteLegSpriteSize = { 128.0f, 128.0f };
+      static constexpr gf::Vector2f AnteLegWorldSize = { 64.0f, 64.0f };
 
-      gf::RectangleShape armRight({50.0f, 25.0f});
-      armRight.setAnchor(gf::Anchor::TopCenter);
-      armRight.setColor(getKreatureColor(kreature->limbsColor));
-      armRight.setPosition(gf::transform(bodyMatrix, {35.0f, 25.0f}));
-      armRight.setRotation(kreature->orientation);
+      gf::Sprite anteLeg(m_kreatureAnteLegTexture);
+      anteLeg.setScale(AnteLegWorldSize / AnteLegSpriteSize);
+      anteLeg.setAnchor(gf::Anchor::BottomCenter);
+      anteLeg.setColor(getKreatureColor(kreature->limbsColor));
+      anteLeg.setPosition(gf::transform(bodyMatrix, {90.0f, -50.0f}));
+      anteLeg.setRotation(kreature->orientation);
+      anteLeg.draw(target, states);
+      anteLeg.setScale({ AnteLegWorldSize.x / AnteLegSpriteSize.x, -AnteLegWorldSize.y / AnteLegSpriteSize.y });
+      anteLeg.setPosition(gf::transform(bodyMatrix, {90.0f, 50.0f}));
+      anteLeg.draw(target, states);
 
-      gf::RectangleShape legLeft({50.0f, 25.0f});
-      legLeft.setAnchor(gf::Anchor::BottomCenter);
-      legLeft.setColor(getKreatureColor(kreature->limbsColor));
-      legLeft.setPosition(gf::transform(bodyMatrix, {-35.0f, -25.0f}));
-      legLeft.setRotation(kreature->orientation);
+      static constexpr gf::Vector2f PostLegSpriteSize = { 128.0f, 128.0f };
+      static constexpr gf::Vector2f PostLegWorldSize = { 64.0f, 64.0f };
 
-      gf::RectangleShape legRight({50.0f, 25.0f});
-      legRight.setAnchor(gf::Anchor::TopCenter);
-      legRight.setColor(getKreatureColor(kreature->limbsColor));
-      legRight.setPosition(gf::transform(bodyMatrix, {-35.0f, 25.0f}));
-      legRight.setRotation(kreature->orientation);
+      gf::Sprite postLeg(m_kreaturePostLegTexture);
+      postLeg.setScale(PostLegWorldSize / PostLegSpriteSize);
+      postLeg.setAnchor(gf::Anchor::BottomCenter);
+      postLeg.setColor(getKreatureColor(kreature->limbsColor));
+      postLeg.setPosition(gf::transform(bodyMatrix, {-70.0f, -40.0f}));
+      postLeg.setRotation(kreature->orientation);
+      postLeg.draw(target, states);
+      postLeg.setScale({ PostLegWorldSize.x / PostLegSpriteSize.x, -PostLegWorldSize.y / PostLegSpriteSize.y });
+      postLeg.setPosition(gf::transform(bodyMatrix, {-70.0f, 40.0f}));
+      postLeg.draw(target, states);
 
-      gf::RectangleShape tail({75.0f, 25.0f});
+      static constexpr gf::Vector2f TailSpriteSize = { 256.0f, 256.0f };
+      static constexpr gf::Vector2f TailWorldSize = { 128.0f, 128.0f };
+
+      gf::Sprite tail(m_kreatureTailTexture);
+      tail.setScale(TailWorldSize / TailSpriteSize);
       tail.setAnchor(gf::Anchor::CenterRight);
       tail.setColor(getKreatureColor(kreature->tailColor));
-      tail.setPosition(gf::transform(bodyMatrix, {-50.0f, 0.0f}));
+      tail.setPosition(gf::transform(bodyMatrix, {-128.0f, 0.0f}));
       tail.setRotation(kreature->orientation);
-
-      armLeft.draw(target, states);
-      armRight.draw(target, states);
-      legLeft.draw(target, states);
-      legRight.draw(target, states);
       tail.draw(target, states);
-      head.draw(target, states);
+
+      // to print over
       body.draw(target, states);
     }
   }
