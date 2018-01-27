@@ -2,6 +2,7 @@
 
 #include <gf/Anchor.h>
 #include <gf/Color.h>
+#include <gf/Coordinates.h>
 #include <gf/Text.h>
 #include <gf/VectorOps.h>
 
@@ -9,12 +10,9 @@
 
 namespace kkd {
 
-  static const constexpr float RATIO_WIDTH_FOOD_HUD = 3.0f;
-
-  Hud::Hud(float screenWidth)
+  Hud::Hud()
   : gf::Entity(10)
   , m_font(gResourceManager().getFont("blkchcry.ttf"))
-  , m_screenWidth(screenWidth)
   {
     // register message handler
     gMessageManager().registerHandler<KrokodileStats>(&Hud::onKrokodileStats, this);
@@ -22,40 +20,52 @@ namespace kkd {
 
   void Hud::render(gf::RenderTarget& target, const gf::RenderStates& states)
   {
+    static constexpr float Padding = 15.0f;
+    static constexpr float RatioWarning = 0.8f;
+
+    gf::Coordinates coords(target);
+
     // FOOD INFO
-    gf::Vector2f foodSize({300.0f, 30.0f});
-    int OutlineThickness = 5;
-    float RatioWarning = 80.0f;
+    gf::Vector2f foodSize = coords.getRelativeSize({ 0.25f, 0.04f });
+    gf::Vector2f foodPosition = coords.getAbsolutePoint({ foodSize.width + Padding, Padding }, gf::Anchor::TopRight);
+
+
     gf::RoundedRectangleShape foodMaxHud;
     foodMaxHud.setSize(foodSize);
-    foodMaxHud.setRadius(10);
-    foodMaxHud.setColor(gf::Color::Transparent);
-    foodMaxHud.setOutlineColor(gf::Color::White);
-    foodMaxHud.setOutlineThickness(OutlineThickness);
-    foodMaxHud.setPosition({m_screenWidth - (float)OutlineThickness, (float)OutlineThickness});
-    foodMaxHud.setAnchor(gf::Anchor::TopRight);
+    foodMaxHud.setRadius(5);
+    foodMaxHud.setColor(gf::Color::White);
+    foodMaxHud.setOutlineColor(gf::Color::Black);
+    foodMaxHud.setOutlineThickness(foodSize.height / 15.0f);
+    foodMaxHud.setPosition(foodPosition);
 
     gf::RoundedRectangleShape foodHud;
     foodHud.setColor(gf::Color::Red);
-    foodHud.setRadius(10);
-    foodHud.setPosition({m_screenWidth - foodSize.x - (float)OutlineThickness, (float)OutlineThickness});
-    foodHud.setSize({m_foodLevel * RATIO_WIDTH_FOOD_HUD, foodSize.y});
+    foodHud.setRadius(5);
+    foodHud.setPosition(foodPosition);
+    foodHud.setSize({ std::max(m_foodLevel / 100.0f, 0.01f) * foodSize.width, foodSize.height });
 
     gf::RectangleShape foodWarning;
-    foodWarning.setSize({2.0f, foodSize.y});
+    foodWarning.setSize({ 2.0f, foodSize.height });
     foodWarning.setColor(gf::Color::Black);
-    foodWarning.setPosition({(m_screenWidth - foodSize.x - (float)OutlineThickness) + RatioWarning * RATIO_WIDTH_FOOD_HUD, (float)OutlineThickness});
+    foodWarning.setPosition({ foodPosition.x + foodSize.width * RatioWarning, foodPosition.y });
+
+
+    unsigned characterSize = coords.getRelativeCharacterSize(0.08f);
 
     // GEN INFO
-    gf::Text genText("Gen : " + std::to_string(m_genNumber), m_font, 50);
+    gf::Text genText("Gen: " + std::to_string(m_genNumber), m_font, characterSize);
     genText.setColor(gf::Color::White);
-    genText.setPosition({0.0f, 0.0f});
+    genText.setOutlineColor(gf::Color::Black);
+    genText.setOutlineThickness(characterSize / 30.0f);
+    genText.setPosition({ Padding, Padding });
     genText.setAnchor(gf::Anchor::TopLeft);
 
     // Timer
-    gf::Text timer("Time : " + std::to_string((int) m_time.getElapsedTime().asSeconds()), m_font, 50);
+    gf::Text timer("Time: " + std::to_string(static_cast<int>(m_time.getElapsedTime().asSeconds())), m_font, characterSize);
     timer.setColor(gf::Color::White);
-    timer.setPosition({0.0f, 80.0f});
+    timer.setOutlineColor(gf::Color::Black);
+    timer.setOutlineThickness(characterSize / 30.0f);
+    timer.setPosition({ Padding, 2 * Padding + characterSize });
     timer.setAnchor(gf::Anchor::TopLeft);
 
     target.draw(foodMaxHud);
@@ -75,7 +85,4 @@ namespace kkd {
     return gf::MessageStatus::Keep;
   }
 
-  void Hud::setWidth(float width) {
-    m_screenWidth = width;
-  }
 }

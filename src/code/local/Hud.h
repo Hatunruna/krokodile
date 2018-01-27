@@ -12,19 +12,17 @@
 namespace kkd {
   class Hud: public gf::Entity {
   public:
-    Hud(float screenWidth);
+    Hud();
 
     virtual void render(gf::RenderTarget& target, const gf::RenderStates& states) override;
 
     gf::MessageStatus onKrokodileStats(gf::Id id, gf::Message *msg);
 
-    void setWidth(float width);
   private:
     gf::Font &m_font;
     int m_genNumber;
     gf::Clock m_time;
     float m_foodLevel;
-    float m_screenWidth;
 
     gf::RectangleShape m_maxFood;
     gf::RectangleShape m_currentFood;

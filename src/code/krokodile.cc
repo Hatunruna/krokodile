@@ -135,8 +135,9 @@ int main() {
   mainEntities.addEntity(kreatures);
 
   gf::EntityContainer hudEntities;
+
   // add entities to hudEntities
-  kkd::Hud hud((float)ScreenSize.width);
+  kkd::Hud hud;
   hudEntities.addEntity(hud);
 
   // game loop
@@ -149,9 +150,6 @@ int main() {
       actions.processEvent(event);
       views.processEvent(event);
 
-      if (event.type == gf::EventType::Resized) {
-        hud.setWidth((float)event.size.width);
-      }
       easterEgg.processEvent(event);
     }
 
