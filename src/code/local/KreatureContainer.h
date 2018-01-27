@@ -31,6 +31,15 @@
 
 namespace kkd {
   class KreatureContainer : public gf::Entity {
+  public:
+    enum ColorName : int {
+      Azure = 0,
+      Green = 1,
+      Yellow = 2,
+      Red = 3,
+      Magenta = 4,
+    };
+
   private:
     struct Kreature {
       Kreature(gf::Vector2f kreaPosition, float kreaRotation, gf::Vector2f kreaTarget)
@@ -45,13 +54,13 @@ namespace kkd {
       int ageLevel = MaxAge;
 
       int headSprite;
-      int headColor;
+      ColorName headColor;
       int bodySprite;
-      int bodyColor;
+      ColorName bodyColor;
       int limbsSprite;
-      int limbsColor;
+      ColorName limbsColor;
       int tailSprite;
-      int tailColor;
+      ColorName tailColor;
 
       float foodLevel = 0.0f;
 
@@ -74,6 +83,7 @@ namespace kkd {
     void playerForwardMove(int direction);
     void playerSidedMove(int direction);
     void swapKreature();
+    void fusionDNA();
 
     void resetActivities(std::unique_ptr<Kreature> &kreature);
 
@@ -91,6 +101,16 @@ namespace kkd {
 
     static constexpr float MaxBound = 1500.0f;
     static constexpr float MinBound = - MaxBound;
+
+    static constexpr float UpperFusionFactor = 0.75f;
+    static constexpr float LowerFusionFactor = 0.25f;
+    static constexpr float FumbleMutation = 0.90f;
+    static constexpr float LimitLengthFusion = 150.0f;
+
+  private:
+    std::vector< std::unique_ptr<Kreature> >::iterator getCloserKreature();
+
+    int colorCompare(ColorName color1, ColorName color2);
 
   private:
     std::vector< std::unique_ptr<Kreature> > m_kreatures;

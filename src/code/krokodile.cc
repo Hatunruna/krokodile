@@ -110,6 +110,10 @@ int main() {
   swapAction.addScancodeKeyControl(gf::Scancode::Tab);
   actions.addAction(swapAction);
 
+  gf::Action fusionAction("Fusion");
+  fusionAction.addScancodeKeyControl(gf::Scancode::Space);
+  actions.addAction(fusionAction);
+
   // entities
   gf::EntityContainer mainEntities;
 
@@ -161,6 +165,9 @@ int main() {
 
     if (swapAction.isActive()) {
       kreatures.swapKreature();
+    }
+    if (fusionAction.isActive()) {
+      kreatures.fusionDNA();
     }
 
     // 2. update
