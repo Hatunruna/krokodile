@@ -51,44 +51,70 @@ namespace kkd {
 
   KreatureContainer::KreatureContainer() {
     for (int i = 0; i < SpawnLimit; ++i) {
+      // Get the initial value
       float x = gRandom().computeUniformFloat(-50.0f, 50.0f);
       float y = gRandom().computeUniformFloat(-50.0f, 50.0f);
 
-      Kreature kreature;
-      kreature.position = { x, y };
-      kreature.bodyColor = gRandom().computeUniformInteger(0, 4);
-      kreature.orientation = gRandom().computeUniformFloat(0.0f, 2 * gf::Pi);
+      float xTarget = gRandom().computeUniformFloat(-50.0f, 50.0f);
+      float yTarget = gRandom().computeUniformFloat(-50.0f, 50.0f);
 
-      m_kreatures.push_back(kreature);
+      float rotation = gRandom().computeUniformFloat(0.0f, 2 * gf::Pi);
+
+      auto kreature = std::make_unique<Kreature>(gf::Vector2f(x, y), rotation, gf::Vector2f(xTarget, yTarget));
+      kreature->bodyColor = gRandom().computeUniformInteger(0, 4);
+
+      m_kreatures.push_back(std::move(kreature));
     }
   }
 
   void KreatureContainer::playerForwardMove(int direction) {
-    m_kreatures[0].forwardMove = direction;
+    m_kreatures[0]->forwardMove = direction;
   }
 
   void KreatureContainer::playerSidedMove(int direction) {
-    m_kreatures[0].sideMove = direction;
+    m_kreatures[0]->sideMove = direction;
   }
 
   void KreatureContainer::update(gf::Time time) {
-    for (auto &kreature: m_kreatures) {
-      // Update the orientation
-      kreature.orientation += SideVelocity * kreature.sideMove * time.asSeconds();
-      kreature.sideMove = 0;
+    // Update the player
+    // Update the orientation
+    m_kreatures[0]->orientation += SideVelocity * m_kreatures[0]->sideMove * time.asSeconds();
+    m_kreatures[0]->sideMove = 0;
 
-      // Update the position
-      kreature.position += gf::unit(kreature.orientation) * ForwardVelocity * kreature.forwardMove * time.asSeconds();
-      kreature.forwardMove = 0;
+    // Update the position
+    m_kreatures[0]->position += gf::unit(m_kreatures[0]->orientation) * ForwardVelocity * m_kreatures[0]->forwardMove * time.asSeconds();
+    m_kreatures[0]->forwardMove = 0;
+
+    // Update AI
+    for (unsigned i = 1; i < m_kreatures.size(); ++i) {
+      gf::ActivityStatus status = m_kreatures[i]->moveSequence.run(time);
+
+      if (status == gf::ActivityStatus::Finished) {
+        float xTarget = gRandom().computeUniformFloat(-50.0f, 50.0f);
+        float yTarget = gRandom().computeUniformFloat(-50.0f, 50.0f);
+        gf::Vector2f target = { xTarget, yTarget };
+
+        // Reset the activities
+        m_kreatures[i]->rotationActivity.setOrigin(m_kreatures[i]->orientation);
+        m_kreatures[i]->rotationActivity.setTarget(gf::angle(target - m_kreatures[i]->position));
+
+        m_kreatures[i]->moveActivity.setOrigin(m_kreatures[i]->position);
+        m_kreatures[i]->moveActivity.setTarget(target);
+        m_kreatures[i]->moveActivity.setDuration(gf::seconds(gf::euclideanDistance(m_kreatures[i]->position, target) / (ForwardVelocity * AiMalusVelocity)));
+
+        m_kreatures[i]->moveSequence.restart();
+      }
     }
   }
 
   void KreatureContainer::render(gf::RenderTarget &target, const gf::RenderStates &states) {
-    for (auto &kreature: m_kreatures) {
+    for (unsigned i = 0; i < m_kreatures.size(); ++i) {
+      auto &kreature = m_kreatures[i];
+
       gf::RectangleShape rect({ 10.0f, 5.0f });
-      rect.setColor(getKreaturColor(kreature.bodyColor));
-      rect.setPosition(kreature.position);
-      rect.setRotation(kreature.orientation);
+      rect.setColor(getKreaturColor(kreature->bodyColor));
+      rect.setPosition(kreature->position);
+      rect.setRotation(kreature->orientation);
       rect.setAnchor(gf::Anchor::Center);
       rect.draw(target, states);
     }

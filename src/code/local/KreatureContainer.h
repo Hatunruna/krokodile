@@ -19,10 +19,13 @@
 #ifndef _KKD_KREATURE_CONTAINER_H
 #define _KKD_KREATURE_CONTAINER_H
 
+#include <memory>
 #include <vector>
 
+#include <gf/Activities.h>
 #include <gf/Entity.h>
 #include <gf/Vector.h>
+#include <gf/VectorOps.h>
 
 namespace kkd {
   class KreatureContainer : public gf::Entity {
@@ -40,9 +43,20 @@ namespace kkd {
     static const constexpr int SpawnLimit = 5;
     static const constexpr float ForwardVelocity = 20.0f;
     static const constexpr float SideVelocity = 2.0f;
+    static const constexpr float activityRotationTime = 1.0f;
+    static const constexpr float AiMalusVelocity = 0.80f;
 
   private:
     struct Kreature {
+      Kreature(gf::Vector2f kreaPosition, float kreaRotation, gf::Vector2f kreaTarget)
+      : position(kreaPosition)
+      , orientation(kreaRotation)
+      , rotationActivity(kreaRotation, gf::angle(kreaTarget - kreaPosition), orientation, gf::seconds(activityRotationTime))
+      , moveActivity(kreaPosition, kreaTarget, position, gf::seconds(gf::euclideanDistance(kreaPosition, kreaTarget) / (ForwardVelocity * AiMalusVelocity))) {
+        moveSequence.addActivity(rotationActivity);
+        moveSequence.addActivity(moveActivity);
+      }
+
       int ageLevel = MaxAge;
 
       int headSprite;
@@ -60,10 +74,14 @@ namespace kkd {
       float orientation;
       float forwardMove = 0; // 1 to forward / -1 to backward
       float sideMove = 0; // 1 to rigth / -1 to left
+
+      gf::RotateToActivity rotationActivity;
+      gf::MoveToActivity moveActivity;
+      gf::SequenceActivity moveSequence;
     };
 
   private:
-    std::vector<Kreature> m_kreatures;
+    std::vector< std::unique_ptr<Kreature> > m_kreatures;
   };
 } /* kkd */
 
