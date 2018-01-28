@@ -15,7 +15,6 @@ make install (require superuser access)
 
 # Run the client:
 ./krokodile
-
 ```
 
 ## Controls
@@ -25,3 +24,11 @@ Keyboard
 - ZQSD or arrows keys to move around
 - SPACEBAR to create an offspring with attributes of the parents
 - TAB to switch beetwen two creatures
+- SHIFT to sprint
+
+Gamepad (360 controller)
+
+- LeftStick to move around
+- A to create an offspring with attributes of the parents
+- LB to switch beetwen two creatures
+- RB to sprint
