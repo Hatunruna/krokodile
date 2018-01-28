@@ -28,7 +28,7 @@ Keyboard
 
 Gamepad (360 controller)
 
-- LeftStick to move forward and backward
+- LeftStick to move forward o backward
 - RightStick to turn left or right
 - LB to create an offspring with attributes of the parents
 - RB to sprint
