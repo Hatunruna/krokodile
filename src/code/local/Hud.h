@@ -14,6 +14,8 @@ namespace kkd {
   public:
     Hud();
 
+    void reset();
+
     virtual void render(gf::RenderTarget& target, const gf::RenderStates& states) override;
 
     gf::MessageStatus onKrokodileStats(gf::Id id, gf::Message *msg);

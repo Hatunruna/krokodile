@@ -78,30 +78,7 @@ namespace kkd {
     m_cropBoxs[0] = gf::RectF({ 0.0f, 0.0f }, { 128.0f, 135.0f });
     m_cropBoxs[1] = gf::RectF({ 0.0f, 0.0f }, { 116.0f, 170.0f });
 
-    for (int i = 0; i < SpawnLimit; ++i) {
-      // Get the initial value
-      float x = gRandom().computeUniformFloat(MinBound, MaxBound);
-      float y = gRandom().computeUniformFloat(MinBound, MaxBound);
-
-      float xTarget = gRandom().computeUniformFloat(MinBound, MaxBound);
-      float yTarget = gRandom().computeUniformFloat(MinBound, MaxBound);
-
-      float rotation = gRandom().computeUniformFloat(0.0f, 2 * gf::Pi);
-
-      auto kreature = std::make_unique<Kreature>(gf::Vector2f(x, y), rotation, gf::Vector2f(xTarget, yTarget));
-      kreature->body.color = randomColor();
-      kreature->body.offset = randomOffset();
-      kreature->head.color = randomColor();
-      kreature->head.offset = randomOffset();
-      kreature->limbs.color = randomColor();
-      kreature->limbs.offset = randomOffset();
-      kreature->tail.color = randomColor();
-      kreature->tail.offset = randomOffset();
-      kreature->timeElapsed = gf::seconds(0.0f + gRandom().computeUniformFloat(0.01f, AnimationDuration.asSeconds() - 0.01f));
-      kreature->lifeCountdown = gf::seconds(gRandom().computeUniformFloat(MinimumLifeTime, MaximumLifeTime));
-
-      m_kreatures.push_back(std::move(kreature));
-    }
+    resetKreatures();
   }
 
   void KreatureContainer::playerForwardMove(int direction) {
@@ -220,6 +197,34 @@ namespace kkd {
     m_kreatures.push_back(std::move(kreature));
   }
 
+  void KreatureContainer::resetKreatures() {
+    m_kreatures.clear();
+    for (int i = 0; i < SpawnLimit; ++i) {
+      // Get the initial value
+      float x = gRandom().computeUniformFloat(MinBound, MaxBound);
+      float y = gRandom().computeUniformFloat(MinBound, MaxBound);
+
+      float xTarget = gRandom().computeUniformFloat(MinBound, MaxBound);
+      float yTarget = gRandom().computeUniformFloat(MinBound, MaxBound);
+
+      float rotation = gRandom().computeUniformFloat(0.0f, 2 * gf::Pi);
+
+      auto kreature = std::make_unique<Kreature>(gf::Vector2f(x, y), rotation, gf::Vector2f(xTarget, yTarget));
+      kreature->body.color = randomColor();
+      kreature->body.offset = randomOffset();
+      kreature->head.color = randomColor();
+      kreature->head.offset = randomOffset();
+      kreature->limbs.color = randomColor();
+      kreature->limbs.offset = randomOffset();
+      kreature->tail.color = randomColor();
+      kreature->tail.offset = randomOffset();
+      kreature->timeElapsed = gf::seconds(0.0f + gRandom().computeUniformFloat(0.01f, AnimationDuration.asSeconds() - 0.01f));
+      kreature->lifeCountdown = gf::seconds(gRandom().computeUniformFloat(MinimumLifeTime, MaximumLifeTime));
+
+      m_kreatures.push_back(std::move(kreature));
+    }
+  }
+
   void KreatureContainer::resetActivities(Kreature& kreature) {
     float xTarget = gRandom().computeUniformFloat(MinBound, MaxBound);
     float yTarget = gRandom().computeUniformFloat(MinBound, MaxBound);
@@ -303,8 +308,6 @@ namespace kkd {
     gMessageManager().sendMessage(&stats);
 
     removeDeadKreature();
-
-    gf::Log::debug("pop : %lu\n", m_kreatures.size());
 
     // Repop if needed
     while (m_kreatures.size() < MinimumPopulation) {
