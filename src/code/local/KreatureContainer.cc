@@ -68,7 +68,8 @@ namespace kkd {
   , m_kreaturePostLegTexture(gResourceManager().getTexture("kreature_postleg.png"))
   , m_kreatureAnteLegTexture(gResourceManager().getTexture("kreature_anteleg.png"))
   , m_kreatureBodyTexture(gResourceManager().getTexture("kreature_body.png"))
-  , m_kreatureTailTexture(gResourceManager().getTexture("kreature_tail.png")) {
+  , m_kreatureTailTexture(gResourceManager().getTexture("kreature_tail.png"))
+  , m_isSprinting(false) {
     // Define hacks for sprites
     m_cropBoxs.resize(TotalAnimal);
     m_cropBoxs[0] = gf::RectF({ 0.0f, 0.0f }, { 128.0f, 135.0f });
@@ -106,6 +107,10 @@ namespace kkd {
 
   void KreatureContainer::playerSidedMove(int direction) {
     getPlayer().sideMove = direction;
+  }
+
+  void KreatureContainer::playerSprint(bool sprint) {
+    m_isSprinting = sprint;
   }
 
   void KreatureContainer::swapKreature() {
@@ -250,7 +255,11 @@ namespace kkd {
     player.sideMove = 0;
 
     // Update the position
-    player.position += gf::unit(player.orientation) * ForwardVelocity * player.forwardMove * time.asSeconds();
+    float sprintFactor = 1.0f;
+    if (m_isSprinting) {
+      sprintFactor = SprintVeloctiy;
+    }
+    player.position += gf::unit(player.orientation) * ForwardVelocity * player.forwardMove * time.asSeconds() * sprintFactor;
     player.forwardMove = 0;
 
     player.position = gf::clamp(player.position, MinBound, MaxBound);
@@ -278,7 +287,11 @@ namespace kkd {
     gMessageManager().sendMessage(&message);
 
     // Update the food level
-    addFoodLevel(time.asSeconds() * FoodLevelSteps);
+    float foodFactor = 1.0f;
+    if (m_isSprinting) {
+      foodFactor = SprintFoodConsumption;
+    }
+    addFoodLevel(time.asSeconds() * FoodLevelSteps * foodFactor);
 
     // Send stats to HUD
     KrokodileStats stats;

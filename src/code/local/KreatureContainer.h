@@ -86,6 +86,7 @@ namespace kkd {
 
     void playerForwardMove(int direction);
     void playerSidedMove(int direction);
+    void playerSprint(bool sprint);
     void swapKreature();
     void fusionDNA();
 
@@ -110,6 +111,8 @@ namespace kkd {
     static constexpr float AiMalusVelocity = 0.80f;
     static constexpr float FoodLevelMax = 100.0f;
     static constexpr float FoodLevelSteps = 15.0f;
+    static constexpr float SprintVeloctiy = 2.0f;
+    static constexpr float SprintFoodConsumption = -2.0f;
 
     static constexpr float MaxBound = 1500.0f;
     static constexpr float MinBound = - MaxBound;
@@ -138,6 +141,8 @@ namespace kkd {
     gf::Texture& m_kreatureBodyTexture;
     gf::Texture& m_kreatureTailTexture;
     std::vector< gf::RectF > m_cropBoxs;
+
+    bool m_isSprinting;
   };
 } /* kkd */
 

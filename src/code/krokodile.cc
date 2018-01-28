@@ -135,6 +135,12 @@ int main() {
   fusionAction.addScancodeKeyControl(gf::Scancode::Space);
   actions.addAction(fusionAction);
 
+  gf::Action sprintAction("Sprint");
+  sprintAction.addScancodeKeyControl(gf::Scancode::LeftShift);
+  sprintAction.addScancodeKeyControl(gf::Scancode::RightShift);
+  sprintAction.setContinuous();
+  actions.addAction(sprintAction);
+
   //Konami
   gf::KonamiKeyboardControl konami;
   gf::Action easterEgg("Easter egg");
@@ -177,6 +183,13 @@ int main() {
     }
 
     // Movement
+    if (sprintAction.isActive()) {
+      kreatures.playerSprint(true);
+    }
+    else {
+      kreatures.playerSprint(false);
+    }
+
     if (rightAction.isActive()) {
       kreatures.playerSidedMove(1);
     } else if (leftAction.isActive()) {
