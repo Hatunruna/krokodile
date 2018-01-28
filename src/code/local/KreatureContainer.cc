@@ -70,6 +70,9 @@ namespace kkd {
   , m_kreatureBodyTexture(gResourceManager().getTexture("kreature_body.png"))
   , m_kreatureTailTexture(gResourceManager().getTexture("kreature_tail.png"))
   , m_isSprinting(false) {
+    // register message handler
+    gMessageManager().registerHandler<ViewSize>(&KreatureContainer::onSizeView, this);
+
     // Define hacks for sprites
     m_cropBoxs.resize(TotalAnimal);
     m_cropBoxs[0] = gf::RectF({ 0.0f, 0.0f }, { 128.0f, 135.0f });
@@ -154,10 +157,10 @@ namespace kkd {
   void KreatureContainer::removeDeadKreature() {
     m_kreatures.erase( std::remove_if(m_kreatures.begin(),
                                       m_kreatures.end(),
-      [](auto &k) {
-          return k->ageLevel <= 0 || k->lifeCountdown.asSeconds() <= 0.0f;
-        }
-      ), m_kreatures.end());
+      [this](auto &k) {
+        gf::RectF viewBox({ k->position - 0.5f * gf::Vector2f(400.0f, 400.0f) }, { 400.0f, 400.0f });
+        return !m_viewRect.intersects(viewBox) && (k->ageLevel <= 0 || k->lifeCountdown.asSeconds() <= 0.0f);
+      }), m_kreatures.end());
   }
 
   void KreatureContainer::checkComplete() {
@@ -306,11 +309,20 @@ namespace kkd {
 
     removeDeadKreature();
 
+    gf::Log::debug("pop : %lu\n", m_kreatures.size());
+
     // Repop if needed
     while (m_kreatures.size() < MinimumPopulation) {
       // Get the initial value
       float x = gRandom().computeUniformFloat(MinBound, MaxBound);
       float y = gRandom().computeUniformFloat(MinBound, MaxBound);
+      gf::RectF viewBox({ gf::Vector2f(x, y) - 0.5f * gf::Vector2f(400.0f, 400.0f) }, { 400.0f, 400.0f });
+
+      while (m_viewRect.intersects(viewBox)) {
+        x = gRandom().computeUniformFloat(MinBound, MaxBound);
+        y = gRandom().computeUniformFloat(MinBound, MaxBound);
+        viewBox.setPosition({ gf::Vector2f(x, y) - 0.5f * gf::Vector2f(400.0f, 400.0f) });
+      }
 
       float xTarget = gRandom().computeUniformFloat(MinBound, MaxBound);
       float yTarget = gRandom().computeUniformFloat(MinBound, MaxBound);
@@ -415,6 +427,15 @@ namespace kkd {
       // to print over
       body.draw(target, states);
     }
+  }
+
+  gf::MessageStatus KreatureContainer::onSizeView(gf::Id id, gf::Message *msg) {
+    assert(id == ViewSize::type);
+    ViewSize *viewSize = static_cast<ViewSize*>(msg);
+
+    m_viewRect = gf::RectF(viewSize->viewCenter - 0.5f * viewSize->viewSize - gf::Vector2f(25.0f, 25.0f), viewSize->viewSize + 2 * gf::Vector2f(25.0f, 25.0f));
+
+    return gf::MessageStatus::Keep;
   }
 
   std::unique_ptr<KreatureContainer::Kreature>& KreatureContainer::getPlayerPtr() {
