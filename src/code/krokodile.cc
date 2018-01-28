@@ -73,6 +73,7 @@ int main() {
   gf::Window window("Krokodile", ScreenSize);
   window.setVerticalSyncEnabled(true);
   window.setFramerateLimit(60);
+  window.setFullscreen();
 
   gf::RenderWindow renderer(window);
 
