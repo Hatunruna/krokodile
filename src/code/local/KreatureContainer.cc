@@ -30,7 +30,7 @@
 #include "Messages.h"
 
 namespace kkd {
-  static constexpr int TotalAnimal = 2;
+  static constexpr int TotalAnimal = 3;
 
   namespace {
     gf::Color4f getKreatureColor(KreatureContainer::ColorName ith) {
@@ -73,10 +73,38 @@ namespace kkd {
     // register message handler
     gMessageManager().registerHandler<ViewSize>(&KreatureContainer::onSizeView, this);
 
+    static constexpr gf::Vector2f BoxCropsVoid = { 10.0f, 10.0f };
+
     // Define hacks for sprites
-    m_cropBoxs.resize(TotalAnimal);
-    m_cropBoxs[0] = gf::RectF({ 0.0f, 0.0f }, { 128.0f, 135.0f });
-    m_cropBoxs[1] = gf::RectF({ 0.0f, 0.0f }, { 116.0f, 170.0f });
+    m_cropBoxes.resize(TotalAnimal);
+
+    // Joint point for kroko
+    m_cropBoxes[0][0] = { 128.0f + BoxCropsVoid.x, 0.0f };
+    m_cropBoxes[0][1] = { 77.0f + BoxCropsVoid.x, -52.0f - BoxCropsVoid.y };
+    m_cropBoxes[0][2] = { 77.0f + BoxCropsVoid.x, +52.0f + BoxCropsVoid.y };
+    m_cropBoxes[0][3] = { -80.0f - BoxCropsVoid.x, -68.0f - BoxCropsVoid.y };
+    m_cropBoxes[0][4] = { -80.0f - BoxCropsVoid.x, +68.0f + BoxCropsVoid.y };
+    m_cropBoxes[0][5] = { -128.0f - BoxCropsVoid.x, 0.0f };
+
+    // Elephant
+    m_cropBoxes[1][0] = { 116.0f + BoxCropsVoid.x, 0.0f };
+    m_cropBoxes[1][1] = { 71.0f + BoxCropsVoid.x, -63.0f - BoxCropsVoid.y };
+    m_cropBoxes[1][2] = { 71.0f + BoxCropsVoid.x, +63.0f + BoxCropsVoid.y };
+    m_cropBoxes[1][3] = { -80.0f + BoxCropsVoid.x, -86.0f - BoxCropsVoid.y };
+    m_cropBoxes[1][4] = { -80.0f + BoxCropsVoid.x, +86.0f + BoxCropsVoid.y };
+    m_cropBoxes[1][5] = { -128.0f - BoxCropsVoid.x, 0.0f };
+
+    // Lion
+    m_cropBoxes[2][0] = { 7.0f + BoxCropsVoid.x, 0.0f };
+    m_cropBoxes[2][1] = { -23.0f + BoxCropsVoid.x, -31.0f - BoxCropsVoid.y };
+    m_cropBoxes[2][2] = { -23.0f + BoxCropsVoid.x, 31.0f + BoxCropsVoid.y };
+    m_cropBoxes[2][3] = { -101.0f + BoxCropsVoid.x, -34.0f - BoxCropsVoid.y };
+    m_cropBoxes[2][4] = { -101.0f + BoxCropsVoid.x, +34.0f + BoxCropsVoid.y };
+    m_cropBoxes[2][5] = { -128.0f - BoxCropsVoid.x, 0.0f };
+
+
+    // m_cropBoxs[0] = gf::RectF({ 0.0f, 0.0f }, { 128.0f, 135.0f });
+    // m_cropBoxs[1] = gf::RectF({ 0.0f, 0.0f }, { 116.0f, 170.0f });
 
     resetKreatures();
   }
@@ -349,7 +377,6 @@ namespace kkd {
 
       static constexpr gf::Vector2f BodySpriteSize = { 256.0f, 256.0f };
       static constexpr gf::Vector2f BodyWorldSize = { 128.0f, 128.0f };
-      static constexpr gf::Vector2f BoxCropsVoid = { 10.0f, 10.0f };
 
       gf::Sprite body(m_kreatureBodyTexture, gf::RectF(kreature->body.offset * gf::Vector2f(1.0f / TotalAnimal, 0.0f), { 1.0f / TotalAnimal, 1.0f }));
       body.setScale(BodyWorldSize / BodySpriteSize);
@@ -379,7 +406,7 @@ namespace kkd {
       head.setScale(HeadWorldSize.x / HeadSpriteSize);
       head.setAnchor(gf::Anchor::CenterLeft);
       head.setColor(getKreatureColor(kreature->head.color));
-      head.setPosition(gf::transform(bodyMatrix, { m_cropBoxs[kreature->body.offset].width + BoxCropsVoid.width, 0.0f }));
+      head.setPosition(gf::transform(bodyMatrix, m_cropBoxes[kreature->body.offset][0]));
       head.setRotation(kreature->orientation);
       head.draw(target, states);
 
@@ -390,11 +417,11 @@ namespace kkd {
       anteLeg.setScale(AnteLegWorldSize / AnteLegSpriteSize);
       anteLeg.setAnchor(gf::Anchor::BottomCenter);
       anteLeg.setColor(getKreatureColor(kreature->limbs.color));
-      anteLeg.setPosition(gf::transform(bodyMatrix, { 0.60f * m_cropBoxs[kreature->body.offset].width + BoxCropsVoid.width, -0.4f * m_cropBoxs[kreature->body.offset].height - BoxCropsVoid.height }));
+      anteLeg.setPosition(gf::transform(bodyMatrix, m_cropBoxes[kreature->body.offset][1]));
       anteLeg.setRotation(kreature->orientation + animationRotationOffset);
       anteLeg.draw(target, states);
       anteLeg.scale({ 1.0f, -1.0f });
-      anteLeg.setPosition(gf::transform(bodyMatrix, { 0.60f * m_cropBoxs[kreature->body.offset].width + BoxCropsVoid.width, 0.4f * m_cropBoxs[kreature->body.offset].height + BoxCropsVoid.height }));
+      anteLeg.setPosition(gf::transform(bodyMatrix, m_cropBoxes[kreature->body.offset][2]));
       anteLeg.draw(target, states);
 
       static constexpr gf::Vector2f PostLegSpriteSize = { 128.0f, 128.0f };
@@ -404,11 +431,11 @@ namespace kkd {
       postLeg.setScale(PostLegWorldSize / PostLegSpriteSize);
       postLeg.setAnchor(gf::Anchor::BottomCenter);
       postLeg.setColor(getKreatureColor(kreature->limbs.color));
-      postLeg.setPosition(gf::transform(bodyMatrix, { -0.40f * m_cropBoxs[kreature->body.offset].width - BoxCropsVoid.width, -0.45f * m_cropBoxs[kreature->body.offset].height - BoxCropsVoid.height}));
+      postLeg.setPosition(gf::transform(bodyMatrix, m_cropBoxes[kreature->body.offset][3]));
       postLeg.setRotation(kreature->orientation + animationRotationOffset);
       postLeg.draw(target, states);
       postLeg.setScale({ PostLegWorldSize.x / PostLegSpriteSize.x, -PostLegWorldSize.y / PostLegSpriteSize.y });
-      postLeg.setPosition(gf::transform(bodyMatrix, { -0.40f * m_cropBoxs[kreature->body.offset].width - BoxCropsVoid.width, 0.45f * m_cropBoxs[kreature->body.offset].height + BoxCropsVoid.height }));
+      postLeg.setPosition(gf::transform(bodyMatrix, m_cropBoxes[kreature->body.offset][4]));
       postLeg.draw(target, states);
 
       static constexpr gf::Vector2f TailSpriteSize = { 256.0f, 256.0f };
@@ -418,7 +445,7 @@ namespace kkd {
       tail.setScale(TailWorldSize / TailSpriteSize);
       tail.setAnchor(gf::Anchor::CenterRight);
       tail.setColor(getKreatureColor(kreature->tail.color));
-      tail.setPosition(gf::transform(bodyMatrix, { -m_cropBoxs[kreature->body.offset].width - BoxCropsVoid.width - 5.0f, 0.0f }));
+      tail.setPosition(gf::transform(bodyMatrix, m_cropBoxes[kreature->body.offset][5]));
       tail.setRotation(kreature->orientation);
       tail.draw(target, states);
 

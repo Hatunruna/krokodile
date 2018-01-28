@@ -144,7 +144,7 @@ namespace kkd {
     gf::Texture& m_kreatureAnteLegTexture;
     gf::Texture& m_kreatureBodyTexture;
     gf::Texture& m_kreatureTailTexture;
-    std::vector< gf::RectF > m_cropBoxs;
+    std::vector< std::array< gf::Vector2f, 6> > m_cropBoxes;
 
     bool m_isSprinting;
     gf::RectF m_viewRect;
