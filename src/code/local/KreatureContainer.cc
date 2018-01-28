@@ -504,9 +504,11 @@ namespace kkd {
     }
 
     float rand = gRandom().computeUniformFloat(0.0f, 1.0f);
+    if (rand > 0.5) {
+      newPart.offset = otherPart.offset;
+    }
     if (rand > fusionFactor) {
       newPart.color = otherPart.color;
-      newPart.offset = otherPart.offset;
     }
     else if (rand >= FumbleMutation) {
       newPart.color = randomColor();
