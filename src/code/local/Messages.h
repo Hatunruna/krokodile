@@ -31,6 +31,13 @@ namespace kkd {
 
     gf::GamepadId gamepadId;
   };
+
+  struct ViewSize: public gf::Message {
+    static constexpr gf::Id type = "ViewSize"_id;
+
+    gf::Vector2f viewSize;
+    gf::Vector2f viewCenter;
+  };
 }
 
 #endif // KKD_MESSAGES_H

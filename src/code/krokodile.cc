@@ -218,6 +218,11 @@ int main() {
         }
     }
 
+    kkd::ViewSize message;
+    message.viewSize = mainView.getSize();
+    message.viewCenter = mainView.getCenter();
+    kkd::gMessageManager().sendMessage(&message);
+
     if (closeWindowAction.isActive()) {
       window.close();
     }

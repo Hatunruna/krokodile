@@ -99,6 +99,8 @@ namespace kkd {
     virtual void update(gf::Time time) override;
     virtual void render(gf::RenderTarget &target, const gf::RenderStates &states) override;
 
+    gf::MessageStatus onSizeView(gf::Id id, gf::Message *msg);
+
   private:
     static constexpr int MaxAge = 5;
     static constexpr int SpawnLimit = 25;
@@ -143,6 +145,7 @@ namespace kkd {
     std::vector< gf::RectF > m_cropBoxs;
 
     bool m_isSprinting;
+    gf::RectF m_viewRect;
   };
 } /* kkd */
 
