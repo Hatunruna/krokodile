@@ -1,6 +1,7 @@
 #ifndef KKD_MESSAGES_H
 #define KKD_MESSAGES_H
 
+#include <gf/Gamepad.h>
 #include <gf/Message.h>
 
 using namespace gf::literals;
@@ -23,6 +24,12 @@ namespace kkd {
 
   struct CompleteGame: public gf::Message {
     static constexpr gf::Id type = "Complete"_id;
+  };
+
+  struct GamepadConnected: public gf::Message {
+    static constexpr gf::Id type = "GamepadConnected"_id;
+
+    gf::GamepadId gamepadId;
   };
 }
 

@@ -25,6 +25,7 @@
 #include <gf/Coordinates.h>
 #include <gf/EntityContainer.h>
 #include <gf/Event.h>
+#include <gf/Gamepad.h>
 #include <gf/RenderWindow.h>
 #include <gf/Shapes.h>
 #include <gf/Text.h>
@@ -36,12 +37,15 @@
 
 #include "config.h"
 #include "local/Hud.h"
+#include "local/KonamiGamepadControl.h"
 #include "local/KreatureContainer.h"
 #include "local/Map.h"
 #include "local/Messages.h"
 #include "local/Singletons.h"
 
 #define UNUSED(x) (void)(x)
+
+void mapGamepadToActions();
 
 int main() {
   bool isGameComplete = false;
@@ -144,10 +148,29 @@ int main() {
 
   //Konami
   gf::KonamiKeyboardControl konami;
+  kkd::KonamiGamepadControl koko;
   gf::Action easterEgg("Easter egg");
   easterEgg.addControl(konami);
+  easterEgg.addControl(koko);
   easterEgg.setInstantaneous();
   actions.addAction(easterEgg);
+
+  kkd::gMessageManager().registerHandler<kkd::GamepadConnected>(
+    [&closeWindowAction, &fullscreenAction, &leftAction, &rightAction, &upAction, &downAction, &swapAction, &fusionAction, &sprintAction, &konami]
+    (gf::Id type, gf::Message *msg) {
+      assert(type == kkd::GamepadConnected::type);
+      auto gamepadMsg = static_cast<kkd::GamepadConnected*>(msg);
+      closeWindowAction.addGamepadButtonControl(gamepadMsg->gamepadId, gf::GamepadButton::Back);
+      fullscreenAction.addGamepadButtonControl(gamepadMsg->gamepadId, gf::GamepadButton::Start);
+      leftAction.addGamepadAxisControl(gamepadMsg->gamepadId, gf::GamepadAxis::LeftX, gf::GamepadAxisDirection::Negative);
+      rightAction.addGamepadAxisControl(gamepadMsg->gamepadId, gf::GamepadAxis::LeftX, gf::GamepadAxisDirection::Positive);
+      upAction.addGamepadAxisControl(gamepadMsg->gamepadId, gf::GamepadAxis::LeftY, gf::GamepadAxisDirection::Negative);
+      downAction.addGamepadAxisControl(gamepadMsg->gamepadId, gf::GamepadAxis::LeftY, gf::GamepadAxisDirection::Positive);
+      swapAction.addGamepadButtonControl(gamepadMsg->gamepadId, gf::GamepadButton::X);
+      fusionAction.addGamepadButtonControl(gamepadMsg->gamepadId, gf::GamepadButton::A);
+      sprintAction.addGamepadButtonControl(gamepadMsg->gamepadId, gf::GamepadButton::B);
+      return gf::MessageStatus::Keep;
+  });
 
   // entities
   gf::EntityContainer mainEntities;
@@ -173,6 +196,26 @@ int main() {
     while (window.pollEvent(event)) {
       actions.processEvent(event);
       views.processEvent(event);
+
+      switch (event.type) {
+        case gf::EventType::GamepadConnected:
+        {
+            gf::GamepadId id = gf::Gamepad::open(event.gamepadConnection.id);
+            kkd::GamepadConnected msg;
+            msg.gamepadId = id;
+            kkd::gMessageManager().sendMessage(&msg);
+            break;
+        }
+
+        case gf::EventType::GamepadDisconnected:
+        {
+            gf::Gamepad::close(event.gamepadDisconnection.id);
+            break;
+        }
+
+        default:
+            break;
+        }
     }
 
     if (closeWindowAction.isActive()) {
@@ -214,6 +257,7 @@ int main() {
 
     if (easterEgg.isActive()) {
       kreatures.createKrokodile();
+      std::cout << "KONAMI" << std::endl;
     }
 
     // 2. update

@@ -19,6 +19,7 @@ endif()
 add_executable(krokodile
   code/krokodile.cc
   code/local/Hud.cc
+  code/local/KonamiGamepadControl.cc
   code/local/KreatureContainer.cc
   code/local/Map.cc
   code/local/Singletons.cc
