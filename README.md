@@ -29,6 +29,7 @@ Keyboard
 Gamepad (360 controller)
 
 - LeftStick to move around
-- A to create an offspring with attributes of the parents
-- LB to switch beetwen two creatures
+- RightStick to turn left or right
+- LB to create an offspring with attributes of the parents
+- X to switch beetwen two creatures
 - RB to sprint
