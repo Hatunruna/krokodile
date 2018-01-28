@@ -3,6 +3,7 @@
 #include <gf/Anchor.h>
 #include <gf/Color.h>
 #include <gf/Coordinates.h>
+#include <gf/Shapes.h>
 #include <gf/Sprite.h>
 #include <gf/Text.h>
 #include <gf/VectorOps.h>
@@ -91,12 +92,28 @@ namespace kkd {
     pentaSprite.setPosition(pentaPos);
     pentaSprite.setAnchor(gf::Anchor::BottomRight);
 
+    gf::ConvexShape pentaBackground(5);
+    pentaBackground.setPoint(0, { 128.0f * 0.5f, 128.0f * 0.0f });
+    pentaBackground.setPoint(1, { 128.0f * 1.0f, 128.0f * 0.28f });
+    pentaBackground.setPoint(2, { 128.0f * 0.83f, 128.0f * 1.0f });
+    pentaBackground.setPoint(3, { 128.0f * 0.19f, 128.0f * 1.0f });
+    pentaBackground.setPoint(4, { 128.0f * 0.0f,  128.0f * 0.28f });
+
+    pentaBackground.setOutlineThickness(5.0f);
+    pentaBackground.setOutlineColor(gf::Color::Opaque(0.3f));
+    pentaBackground.setColor(gf::Color::Opaque(0.6f));
+    pentaBackground.setScale(HudIconsScale * 3.0f);
+    //pentaBackground.setPosition(pentaPos);
+    pentaBackground.setPosition(pentaPos);
+    pentaBackground.setAnchor(gf::Anchor::BottomRight);
+
     // DRAW EVERYTHING
     target.draw(genText);
     target.draw(timer);
     target.draw(clockSprite);
     target.draw(genSprite);
     target.draw(heartSprite);
+    target.draw(pentaBackground);
     target.draw(pentaSprite);
   }
 

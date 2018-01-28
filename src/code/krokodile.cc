@@ -162,13 +162,13 @@ int main() {
       auto gamepadMsg = static_cast<kkd::GamepadConnected*>(msg);
       closeWindowAction.addGamepadButtonControl(gamepadMsg->gamepadId, gf::GamepadButton::Back);
       fullscreenAction.addGamepadButtonControl(gamepadMsg->gamepadId, gf::GamepadButton::Start);
-      leftAction.addGamepadAxisControl(gamepadMsg->gamepadId, gf::GamepadAxis::LeftX, gf::GamepadAxisDirection::Negative);
-      rightAction.addGamepadAxisControl(gamepadMsg->gamepadId, gf::GamepadAxis::LeftX, gf::GamepadAxisDirection::Positive);
+      leftAction.addGamepadAxisControl(gamepadMsg->gamepadId, gf::GamepadAxis::RightX, gf::GamepadAxisDirection::Negative);
+      rightAction.addGamepadAxisControl(gamepadMsg->gamepadId, gf::GamepadAxis::RightX, gf::GamepadAxisDirection::Positive);
       upAction.addGamepadAxisControl(gamepadMsg->gamepadId, gf::GamepadAxis::LeftY, gf::GamepadAxisDirection::Negative);
       downAction.addGamepadAxisControl(gamepadMsg->gamepadId, gf::GamepadAxis::LeftY, gf::GamepadAxisDirection::Positive);
       swapAction.addGamepadButtonControl(gamepadMsg->gamepadId, gf::GamepadButton::X);
-      fusionAction.addGamepadButtonControl(gamepadMsg->gamepadId, gf::GamepadButton::A);
-      sprintAction.addGamepadButtonControl(gamepadMsg->gamepadId, gf::GamepadButton::B);
+      fusionAction.addGamepadButtonControl(gamepadMsg->gamepadId, gf::GamepadButton::LeftBumper);
+      sprintAction.addGamepadButtonControl(gamepadMsg->gamepadId, gf::GamepadButton::RightBumper);
       return gf::MessageStatus::Keep;
   });
 
@@ -262,7 +262,6 @@ int main() {
 
     if (easterEgg.isActive()) {
       kreatures.createKrokodile();
-      std::cout << "KONAMI" << std::endl;
     }
 
     // 2. update
