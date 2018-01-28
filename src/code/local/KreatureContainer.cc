@@ -18,6 +18,8 @@
 
 #include "KreatureContainer.h"
 
+#include <numeric>
+
 #include <gf/Color.h>
 #include <gf/Log.h>
 #include <gf/Math.h>
@@ -92,6 +94,7 @@ namespace kkd {
       kreature->tail.color = randomColor();
       kreature->tail.offset = randomOffset();
       kreature->timeElapsed = gf::seconds(0.0f + gRandom().computeUniformFloat(0.01f, AnimationDuration.asSeconds() - 0.01f));
+      kreature->lifeCountdown = gf::seconds(gRandom().computeUniformFloat(MinimumLifeTime, MaximumLifeTime));
 
       m_kreatures.push_back(std::move(kreature));
     }
@@ -150,6 +153,7 @@ namespace kkd {
     child->limbs = fusionPart(currentKreature->limbs, closerKreature->limbs);
 
     child->timeElapsed = gf::seconds(0.0f + gRandom().computeUniformFloat(0.01f, AnimationDuration.asSeconds() - 0.01f));
+    child->lifeCountdown = gf::seconds(gRandom().computeUniformFloat(MinimumLifeTime, MaximumLifeTime));
 
 
     addFoodLevel(-FusionFoodConsumption);
@@ -169,7 +173,7 @@ namespace kkd {
     m_kreatures.erase( std::remove_if(m_kreatures.begin(),
                                       m_kreatures.end(),
       [](auto &k) {
-          return k->ageLevel <= 0;
+          return k->ageLevel <= 0 || k->lifeCountdown.asSeconds() <= 0.0f;
         }
       ), m_kreatures.end());
   }
@@ -201,6 +205,9 @@ namespace kkd {
     kreature->limbs.offset = 0;
     kreature->tail.color = Green;
     kreature->tail.offset = 0;
+
+    kreature->timeElapsed = gf::seconds(0.0f + gRandom().computeUniformFloat(0.01f, AnimationDuration.asSeconds() - 0.01f));
+    kreature->lifeCountdown = gf::seconds(std::numeric_limits<float>::max());
 
     m_kreatures.push_back(std::move(kreature));
   }
@@ -261,6 +268,8 @@ namespace kkd {
         m_kreatures[i]->timeElapsed -= AnimationDuration;
         m_kreatures[i]->toggleAnimation = !m_kreatures[i]->toggleAnimation;
       }
+
+      m_kreatures[i]->lifeCountdown -= time;
     }
 
     KrokodilePosition message;
@@ -276,6 +285,34 @@ namespace kkd {
     stats.foodLevel = player.foodLevel;
     stats.ageLevel = player.ageLevel;
     gMessageManager().sendMessage(&stats);
+
+    removeDeadKreature();
+
+    // Repop if needed
+    while (m_kreatures.size() < MinimumPopulation) {
+      // Get the initial value
+      float x = gRandom().computeUniformFloat(MinBound, MaxBound);
+      float y = gRandom().computeUniformFloat(MinBound, MaxBound);
+
+      float xTarget = gRandom().computeUniformFloat(MinBound, MaxBound);
+      float yTarget = gRandom().computeUniformFloat(MinBound, MaxBound);
+
+      float rotation = gRandom().computeUniformFloat(0.0f, 2 * gf::Pi);
+
+      auto kreature = std::make_unique<Kreature>(gf::Vector2f(x, y), rotation, gf::Vector2f(xTarget, yTarget));
+      kreature->body.color = randomColor();
+      kreature->body.offset = randomOffset();
+      kreature->head.color = randomColor();
+      kreature->head.offset = randomOffset();
+      kreature->limbs.color = randomColor();
+      kreature->limbs.offset = randomOffset();
+      kreature->tail.color = randomColor();
+      kreature->tail.offset = randomOffset();
+      kreature->timeElapsed = gf::seconds(0.0f + gRandom().computeUniformFloat(0.01f, AnimationDuration.asSeconds() - 0.01f));
+      kreature->lifeCountdown = gf::seconds(gRandom().computeUniformFloat(MinimumLifeTime, MaximumLifeTime));
+
+      m_kreatures.push_back(std::move(kreature));
+    }
   }
 
   void KreatureContainer::render(gf::RenderTarget &target, const gf::RenderStates &states) {

@@ -74,6 +74,7 @@ namespace kkd {
       float sideMove = 0; // 1 to rigth / -1 to left
       gf::Time timeElapsed;
       bool toggleAnimation = true;
+      gf::Time lifeCountdown;
 
       gf::RotateToActivity rotationActivity;
       gf::MoveToActivity moveActivity;
@@ -100,6 +101,9 @@ namespace kkd {
   private:
     static constexpr int MaxAge = 5;
     static constexpr int SpawnLimit = 25;
+    static constexpr int MinimumPopulation = 15;
+    static constexpr float MinimumLifeTime = 45.0f;
+    static constexpr float MaximumLifeTime = 90.0f;
     static constexpr float ForwardVelocity = 200.0f;
     static constexpr float SideVelocity = 2.0f;
     static constexpr float activityRotationTime = 1.0f;
