@@ -309,8 +309,6 @@ namespace kkd {
 
     removeDeadKreature();
 
-    gf::Log::debug("pop : %lu\n", m_kreatures.size());
-
     // Repop if needed
     while (m_kreatures.size() < MinimumPopulation) {
       // Get the initial value
