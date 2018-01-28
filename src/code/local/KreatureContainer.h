@@ -72,6 +72,9 @@ namespace kkd {
       float orientation;
       float forwardMove = 0; // 1 to forward / -1 to backward
       float sideMove = 0; // 1 to rigth / -1 to left
+      gf::Time timeElapsed;
+      bool toggleAnimation = true;
+      gf::Time lifeCountdown;
 
       gf::RotateToActivity rotationActivity;
       gf::MoveToActivity moveActivity;
@@ -83,6 +86,7 @@ namespace kkd {
 
     void playerForwardMove(int direction);
     void playerSidedMove(int direction);
+    void playerSprint(bool sprint);
     void swapKreature();
     void fusionDNA();
 
@@ -98,12 +102,17 @@ namespace kkd {
   private:
     static constexpr int MaxAge = 5;
     static constexpr int SpawnLimit = 25;
+    static constexpr int MinimumPopulation = 15;
+    static constexpr float MinimumLifeTime = 45.0f;
+    static constexpr float MaximumLifeTime = 90.0f;
     static constexpr float ForwardVelocity = 200.0f;
     static constexpr float SideVelocity = 2.0f;
     static constexpr float activityRotationTime = 1.0f;
     static constexpr float AiMalusVelocity = 0.80f;
     static constexpr float FoodLevelMax = 100.0f;
     static constexpr float FoodLevelSteps = 15.0f;
+    static constexpr float SprintVeloctiy = 2.0f;
+    static constexpr float SprintFoodConsumption = -2.0f;
 
     static constexpr float MaxBound = 1500.0f;
     static constexpr float MinBound = - MaxBound;
@@ -113,6 +122,7 @@ namespace kkd {
     static constexpr float LowerFusionFactor = 0.25f;
     static constexpr float FumbleMutation = 0.90f;
     static constexpr float LimitLengthFusion = 150.0f;
+    static constexpr gf::Time AnimationDuration = gf::seconds(0.25f);
 
   private:
     std::unique_ptr<Kreature>& getPlayerPtr();
@@ -130,6 +140,9 @@ namespace kkd {
     gf::Texture& m_kreatureAnteLegTexture;
     gf::Texture& m_kreatureBodyTexture;
     gf::Texture& m_kreatureTailTexture;
+    std::vector< gf::RectF > m_cropBoxs;
+
+    bool m_isSprinting;
   };
 } /* kkd */
 
