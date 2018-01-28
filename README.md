@@ -23,13 +23,13 @@ Keyboard
 
 - ZQSD or arrows keys to move around
 - SPACEBAR to create an offspring with attributes of the parents
-- TAB to switch beetwen two creatures
 - SHIFT to sprint
+- TAB to take control of the nearest creature
 
 Gamepad (360 controller)
 
-- LeftStick to move around
+- LeftStick to move forward and backward
 - RightStick to turn left or right
 - LB to create an offspring with attributes of the parents
-- X to switch beetwen two creatures
 - RB to sprint
+- X to take control of the nearest creature
