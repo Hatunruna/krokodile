@@ -20,6 +20,7 @@ namespace kkd {
   , m_gen(gResourceManager().getTexture("gen.png"))
   , m_heartOk(gResourceManager().getTexture("heart_red.png"))
   , m_heartLow(gResourceManager().getTexture("heart.png"))
+  , m_penta(gResourceManager().getTexture("penta.png"))
   {
     // register message handler
     gMessageManager().registerHandler<KrokodileStats>(&Hud::onKrokodileStats, this);
@@ -27,6 +28,7 @@ namespace kkd {
     m_gen.setSmooth();
     m_heartOk.setSmooth();
     m_heartLow.setSmooth();
+    m_penta.setSmooth();
   }
 
   void Hud::render(gf::RenderTarget& target, const gf::RenderStates& states)
@@ -39,6 +41,7 @@ namespace kkd {
 
     gf::Vector2f foodSize = coords.getRelativeSize({ 0.25f, 0.04f });
     gf::Vector2f genPos = coords.getAbsolutePoint({ Padding, Padding}, gf::Anchor::BottomLeft);
+    gf::Vector2f pentaPos = coords.getAbsolutePoint({ Padding, Padding }, gf::Anchor::BottomRight);
 
     unsigned characterSize = coords.getRelativeCharacterSize(0.08f);
     float HudIconsScale = characterSize / 128.0f / 1.25f;
@@ -81,11 +84,19 @@ namespace kkd {
     timer.setPosition({ Padding + clockSprite.getLocalBounds().width * HudIconsScale, Padding });
     timer.setAnchor(gf::Anchor::TopLeft);
 
+    // PENTA COLOR
+    gf::Sprite pentaSprite;
+    pentaSprite.setTexture(m_penta);
+    pentaSprite.setScale(HudIconsScale * 3.0f);
+    pentaSprite.setPosition(pentaPos);
+    pentaSprite.setAnchor(gf::Anchor::BottomRight);
+
     target.draw(genText);
     target.draw(timer);
     target.draw(clockSprite);
     target.draw(genSprite);
     target.draw(heartSprite);
+    target.draw(pentaSprite);
   }
 
   gf::MessageStatus Hud::onKrokodileStats(gf::Id id, gf::Message *msg) {

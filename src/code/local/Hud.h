@@ -24,6 +24,7 @@ namespace kkd {
     gf::Texture &m_gen;
     gf::Texture &m_heartOk;
     gf::Texture &m_heartLow;
+    gf::Texture &m_penta;
     int m_genNumber;
     gf::Clock m_time;
     float m_foodLevel;

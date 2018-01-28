@@ -448,7 +448,7 @@ namespace kkd {
         }
         return 0;
 
-      case KreatureContainer::Green:
+      case Green:
         if (color2 == Azure || color2 == Yellow) {
           return 1;
         }
@@ -457,7 +457,7 @@ namespace kkd {
         }
         return 0;
 
-      case KreatureContainer::Yellow:
+      case Yellow:
         if (color2 == Red || color2 == Magenta) {
           return 1;
         }
@@ -466,7 +466,7 @@ namespace kkd {
         }
         return 0;
 
-      case KreatureContainer::Red:
+      case Red:
         if (color2 == Azure || color2 == Green) {
           return 1;
         }
@@ -475,7 +475,7 @@ namespace kkd {
         }
         return 0;
 
-      case KreatureContainer::Magenta:
+      case Magenta:
         if (color2 == Red || color2 == Green) {
           return 1;
         }
@@ -504,7 +504,7 @@ namespace kkd {
     }
 
     float rand = gRandom().computeUniformFloat(0.0f, 1.0f);
-    if (rand < fusionFactor) {
+    if (rand > fusionFactor) {
       newPart.color = otherPart.color;
       newPart.offset = otherPart.offset;
     }
