@@ -20,6 +20,10 @@ namespace kkd {
 
   private:
     gf::Font &m_font;
+    gf::Texture &m_clock;
+    gf::Texture &m_gen;
+    gf::Texture &m_heartOk;
+    gf::Texture &m_heartLow;
     int m_genNumber;
     gf::Clock m_time;
     float m_foodLevel;
