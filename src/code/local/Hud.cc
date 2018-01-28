@@ -57,7 +57,7 @@ namespace kkd {
     genText.setColor(gf::Color::White);
     genText.setOutlineColor(gf::Color::Black);
     genText.setOutlineThickness(characterSize / 30.0f);
-    genText.setPosition({genPos.x + genSprite.getLocalBounds().width * HudIconsScale, genPos.y});
+    genText.setPosition({genPos.x + genSprite.getLocalBounds().width * HudIconsScale + Padding, genPos.y});
     genText.setAnchor(gf::Anchor::BottomLeft);
 
     // FOOD INFO
@@ -81,7 +81,7 @@ namespace kkd {
     timer.setColor(gf::Color::White);
     timer.setOutlineColor(gf::Color::Black);
     timer.setOutlineThickness(characterSize / 30.0f);
-    timer.setPosition({ Padding + clockSprite.getLocalBounds().width * HudIconsScale, Padding });
+    timer.setPosition({ 2.0f * Padding + clockSprite.getLocalBounds().width * HudIconsScale, Padding });
     timer.setAnchor(gf::Anchor::TopLeft);
 
     // PENTA COLOR
@@ -91,6 +91,7 @@ namespace kkd {
     pentaSprite.setPosition(pentaPos);
     pentaSprite.setAnchor(gf::Anchor::BottomRight);
 
+    // DRAW EVERYTHING
     target.draw(genText);
     target.draw(timer);
     target.draw(clockSprite);
