@@ -29,6 +29,6 @@ Keyboard
 Gamepad (360 controller)
 
 - LeftStick to move around
-- A Button to use your compass to be able to find any treasure
+- A to create an offspring with attributes of the parents
 - LB to switch beetwen two creatures
 - RB to sprint
