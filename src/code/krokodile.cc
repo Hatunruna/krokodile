@@ -251,8 +251,16 @@ int main() {
     }
 
     if (fusionAction.isActive()) {
-      kreatures.fusionDNA();
-      nbGen++;
+      if (isGameComplete) {
+        kreatures.resetKreatures();
+        hud.reset();
+        nbGen = 0;
+        startClock.restart();
+        isGameComplete = false;
+      } else {
+        kreatures.fusionDNA();
+        nbGen++;
+      }
     }
 
     if (easterEgg.isActive()) {
@@ -283,7 +291,7 @@ int main() {
       gf::Vector2f screenCenter = coords.getCenter();
 
       int finalScore = (int)((10000.0f / (nbGen * endTime + 1)) * 1000.0f);
-      gf::Text scoreTxt("Generations : " + std::to_string(nbGen) + "\nTime : " + std::to_string((int)endTime) + " seconds\nScore : " + std::to_string(finalScore), kkd::gResourceManager().getFont("blkchcry.ttf"), 100);
+      gf::Text scoreTxt("Generations : " + std::to_string(nbGen) + "\nTime : " + std::to_string((int)endTime) + " seconds\nScore : " + std::to_string(finalScore) + "\nPress 'Space' to restart", kkd::gResourceManager().getFont("blkchcry.ttf"), 100);
       scoreTxt.setOutlineColor(gf::Color::Black);
       scoreTxt.setOutlineThickness(2.0f);
       scoreTxt.setColor(gf::Color::White);

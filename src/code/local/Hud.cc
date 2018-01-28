@@ -40,7 +40,6 @@ namespace kkd {
 
     gf::Coordinates coords(target);
 
-    gf::Vector2f foodSize = coords.getRelativeSize({ 0.25f, 0.04f });
     gf::Vector2f genPos = coords.getAbsolutePoint({ Padding, Padding}, gf::Anchor::BottomLeft);
     gf::Vector2f pentaPos = coords.getAbsolutePoint({ Padding, Padding }, gf::Anchor::BottomRight);
 
@@ -103,7 +102,6 @@ namespace kkd {
     pentaBackground.setOutlineColor(gf::Color::Opaque(0.3f));
     pentaBackground.setColor(gf::Color::Opaque(0.6f));
     pentaBackground.setScale(HudIconsScale * 3.0f);
-    //pentaBackground.setPosition(pentaPos);
     pentaBackground.setPosition(pentaPos);
     pentaBackground.setAnchor(gf::Anchor::BottomRight);
 
@@ -115,6 +113,10 @@ namespace kkd {
     target.draw(heartSprite);
     target.draw(pentaBackground);
     target.draw(pentaSprite);
+  }
+
+  void Hud::reset() {
+    m_time.restart();
   }
 
   gf::MessageStatus Hud::onKrokodileStats(gf::Id id, gf::Message *msg) {

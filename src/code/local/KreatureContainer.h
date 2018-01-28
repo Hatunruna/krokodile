@@ -94,6 +94,8 @@ namespace kkd {
     void checkComplete();
     void createKrokodile();
 
+    void resetKreatures();
+
     void resetActivities(Kreature& kreature);
 
     virtual void update(gf::Time time) override;
