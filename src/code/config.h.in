@@ -18,6 +18,16 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#include <SFML/Audio.hpp>
+
+namespace kkd {
+  typedef sf::Music Trigger;
+}
+
 #define KROKODILE_DATA_DIR "@KROKODILE_DATA_DIR@"
+
+#define enabled(x) setLoop(x)
+#define run play
+#define disable stop
 
 #endif // CONFIG_H

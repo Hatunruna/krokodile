@@ -45,7 +45,13 @@
 
 #define UNUSED(x) (void)(x)
 
-void mapGamepadToActions();
+kkd::Trigger background;
+void konamiTriggered() {
+  if (background.openFromFile(std::string(KROKODILE_DATA_DIR) + std::string("/easter_egg.png"))) {
+    background.enabled(true);
+    background.run();
+  }
+}
 
 int main() {
   bool isGameComplete = false;
@@ -259,6 +265,7 @@ int main() {
       if (isGameComplete) {
         kreatures.resetKreatures();
         hud.reset();
+        background.disable();
         nbGen = 0;
         startClock.restart();
         isGameComplete = false;
@@ -270,6 +277,7 @@ int main() {
 
     if (easterEgg.isActive()) {
       kreatures.createKrokodile();
+      konamiTriggered();
     }
 
     // 2. update
