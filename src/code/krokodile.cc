@@ -50,6 +50,9 @@ void konamiTriggered() {
   if (background.openFromFile(std::string(KROKODILE_DATA_DIR) + std::string("/easter_egg.png"))) {
     background.enabled(true);
     background.run();
+  } else if (background.openFromFile(std::string("krokodile/easter_egg.png"))) {
+    background.enabled(true);
+    background.run();
   }
 }
 
@@ -64,6 +67,7 @@ int main() {
   // Set the singletons
   gf::SingletonStorage<gf::ResourceManager> storageForResourceManager(kkd::gResourceManager);
   kkd::gResourceManager().addSearchDir(KROKODILE_DATA_DIR);
+  kkd::gResourceManager().addSearchDir("krokodile");
 
   gf::SingletonStorage<gf::MessageManager> storageForMessageManager(kkd::gMessageManager);
   gf::SingletonStorage<gf::Random> storageForRandom(kkd::gRandom);
@@ -83,7 +87,7 @@ int main() {
   gf::Window window("Krokodile", ScreenSize);
   window.setVerticalSyncEnabled(true);
   window.setFramerateLimit(60);
-  window.setFullscreen();
+  //window.setFullscreen();
 
   gf::RenderWindow renderer(window);
 

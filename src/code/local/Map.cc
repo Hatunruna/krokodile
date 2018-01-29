@@ -34,7 +34,7 @@ namespace kkd {
     m_layer.setTexture(m_texture);
     m_layer.setTileSize({ 64u, 64u });
 
-    gf::Heightmap heightmap({ Size, Size });
+    gf::Heightmap heightmap({ (int)Size, (int)Size });
     heightmap.reset();
 
     gf::PerlinNoise2D noise(gRandom(), 2);

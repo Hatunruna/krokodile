@@ -4,11 +4,13 @@ project(KROKODILE
   VERSION 0.1.0
 )
 
-include(GNUInstallDirs)
 
 find_package(gf REQUIRED)
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(SFML2 REQUIRED sfml-audio>=2.1)
+if(NOT WIN32)
+  find_package(PkgConfig REQUIRED)
+  pkg_check_modules(SFML2 REQUIRED sfml-audio>=2.1)
+endif()
+include(GNUInstallDirs)
 
 set(KROKODILE_DATA_DIR "${CMAKE_INSTALL_PREFIX}/share/games/krokodile")
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/code/config.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h @ONLY)
